@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "android": "ng build && npx cap sync android && npx cap open android",
-    "sync": "ng build && npx cap sync android"
+    "sync": "ng build && npx cap sync android",
+    "deploy:web": "bash deploy-web.sh"
   },
   "prettier": {
     "printWidth": 100,
