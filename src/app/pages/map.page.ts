@@ -8,13 +8,14 @@ import { AppState, BeachView } from '../services/app-state.service';
 import { LEVEL_COLORS } from '../services/sea';
 import { TimePickerComponent } from '../components/time-picker.component';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
+import { PhotoGalleryComponent } from '../components/photo-gallery.component';
 
 @Component({
   selector: 'app-map',
   standalone: true,
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonFab, IonFabButton, IonSpinner,
-    TimePickerComponent, BeachSummaryComponent,
+    TimePickerComponent, BeachSummaryComponent, PhotoGalleryComponent,
   ],
   template: `
     <ion-header>
@@ -60,7 +61,10 @@ import { BeachSummaryComponent } from '../components/beach-summary.component';
           } @else {
             <button class="close" (click)="selectedId.set(null)" aria-label="close">✕</button>
           }
-          <app-beach-summary [view]="v" (open)="openBeach(v.beach.id)" />
+          <div class="card-row">
+            <app-photo-gallery [beach]="v.beach" mode="thumb" (click)="openBeach(v.beach.id)" />
+            <app-beach-summary class="grow" [view]="v" (open)="openBeach(v.beach.id)" />
+          </div>
         </div>
       }
     </ion-content>
@@ -84,6 +88,8 @@ import { BeachSummaryComponent } from '../components/beach-summary.component';
       background: var(--ion-background-color, #fff); border-radius: 16px; padding: 12px 14px;
       box-shadow: 0 4px 18px rgba(0,0,0,.25);
     }
+    .card-row { display: flex; gap: 10px; align-items: flex-start; }
+    .grow { flex: 1; min-width: 0; }
     .pick { font-size: 12px; font-weight: 600; color: var(--ion-color-primary); margin-bottom: 4px; }
     .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 18px; color: var(--ion-color-medium); }
     ion-fab.raised { bottom: 190px; }

@@ -81,6 +81,23 @@ npm run android           # build + sync + άνοιγμα στο Android Studio
 > βάση δεδομένων (π.χ. Supabase ή Firebase). Η εφαρμογή είναι ήδη χωρισμένη έτσι ώστε να αλλάξει μόνο το
 > `beach-repository.service.ts`.
 
+## Φωτογραφίες παραλιών
+
+Οι φωτογραφίες έρχονται από το [Wikimedia Commons](https://commons.wikimedia.org), όπου όλες έχουν ελεύθερη άδεια.
+Κάτω από κάθε φωτογραφία η εφαρμογή γράφει **δημιουργό, άδεια και σύνδεσμο** στη σελίδα της, όπως ζητούν οι άδειες.
+
+- **Αυτόματα**: η εφαρμογή ψάχνει φωτογραφίες τραβηγμένες σε απόσταση έως 700 μ. από την παραλία και κρατά
+  τις πιο σχετικές (με λέξεις όπως beach, παραλία, sea, ή το όνομα της παραλίας). Χάρτες, λογότυπα και μικρές
+  εικόνες απορρίπτονται.
+- **Επιλεγμένες με το χέρι**: αν μια αυτόματη φωτογραφία δεν σου αρέσει, βρες στο Commons αυτές που θέλεις και
+  βάλε τα ονόματά τους στο `data/beaches.json`:
+  ```json
+  "photos": ["File:Petra, Lesbos - beach.jpg", "File:Petra Lesvos 2019.jpg"]
+  ```
+  Τότε η εφαρμογή δείχνει μόνο αυτές, με αυτή τη σειρά. Το όνομα το βρίσκεις στον τίτλο της σελίδας του αρχείου.
+
+Οι φωτογραφίες αποθηκεύονται στη συσκευή για 7 ημέρες. Χωρίς ίντερνετ φαίνονται όσες έχουν ήδη φορτώσει.
+
 ## Δομή
 
 ```
@@ -91,6 +108,7 @@ src/app/
   services/sea.ts            υπολογισμός κύματος, Beaufort, πυξίδα
   services/app-state.service.ts   καιρός, θέση, αγαπημένες, γλώσσα
   services/i18n.ts           κείμενα ΕΛ/EN
+  services/photo.service.ts  φωτογραφίες από Wikimedia Commons με αναφορά δημιουργού
   pages/                     χάρτης, λίστα, παραλία, συμβουλές
   components/                επιλογή ώρας, σύνοψη παραλίας
 android/                     project Android (Capacitor)
@@ -101,6 +119,7 @@ data/beaches.json            ΟΛΕΣ οι παραλίες — εδώ γίνο�
 
 - Θέσεις παραλιών: [EEA – Bathing Water Directive](https://marine.discomap.eea.europa.eu/arcgis/rest/services/BathingWater/BathingWater_Dyna_WM/MapServer)
 - Περιγραφές: [lesvos.com – Beaches](https://www.lesvos.com/beaches/index.html)
+- Φωτογραφίες: [Wikimedia Commons](https://commons.wikimedia.org), με τον δημιουργό και την άδεια κάθε φωτογραφίας
 - Καιρός και θάλασσα: [Open-Meteo](https://open-meteo.com) (Forecast και Marine API)
 - Χάρτης: © [OpenStreetMap](https://www.openstreetmap.org/copyright). Για εφαρμογή με πολλούς χρήστες
   καλό είναι να χρησιμοποιηθεί πάροχος tiles, π.χ. MapTiler ή Stadia, σύμφωνα με την πολιτική χρήσης του OSM.
