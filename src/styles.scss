@@ -1,0 +1,28 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/flex-utils.css';
+@import '@ionic/angular/css/display.css';
+
+:root {
+  --ion-color-primary: #0b6e99;
+  --ion-color-primary-rgb: 11, 110, 153;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0a6187;
+  --ion-color-primary-tint: #2381a3;
+}
+
+/* Δείκτες παραλιών στον χάρτη */
+.beach-marker { position: relative; }
+.beach-marker .dot {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+  color: #fff; font-size: 12px; line-height: 18px; text-align: center; font-weight: 700;
+}
+.beach-marker .wind-arrow {
+  position: absolute; left: 22px; top: -4px; font-size: 11px; color: #263238;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff; display: inline-block;
+}
