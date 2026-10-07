@@ -1,7 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Geolocation } from '@capacitor/geolocation';
-import { BEACHES } from '../data/beaches';
+import { BeachRepository, BeachSource } from './beach-repository.service';
 import { Beach, HourWeather, Lang, SeaCondition } from '../models';
 import { seaCondition } from './sea';
 import { DictKey, translate } from './i18n';
@@ -20,7 +20,10 @@ export interface BeachView {
 
 @Injectable({ providedIn: 'root' })
 export class AppState {
-  readonly beaches = BEACHES;
+  private repo = inject(BeachRepository);
+  /** Οι παραλίες που εμφανίζονται (ενσωματωμένες → αποθηκευμένες → από τη βάση). */
+  readonly beaches = signal<Beach[]>(this.repo.bundled());
+  readonly beachSource = signal<BeachSource>('bundled');
 
   readonly lang = signal<Lang>('el');
   readonly favorites = signal<Set<string>>(new Set());
@@ -28,9 +31,9 @@ export class AppState {
 
   readonly loading = signal(false);
   readonly error = signal(false);
-  /** Ωριαία πρόγνωση ανά παραλία (ίδια σειρά με BEACHES). */
-  private readonly hourly = signal<HourWeather[][]>([]);
-  readonly times = computed(() => this.hourly()[0]?.map((h) => h.time) ?? []);
+  /** Ωριαία πρόγνωση ανά παραλία (κλειδί: id παραλίας). */
+  private readonly hourly = signal<Map<string, HourWeather[]>>(new Map());
+  readonly times = computed(() => this.hourly().values().next().value?.map((h) => h.time) ?? []);
   /** Επιλεγμένη ώρα (δείκτης στον πίνακα ωρών). */
   readonly hourIndex = signal(0);
   readonly nowIndex = signal(0);
@@ -40,8 +43,8 @@ export class AppState {
     const idx = this.hourIndex();
     const pos = this.position();
     const favs = this.favorites();
-    return this.beaches.map((beach, i) => {
-      const weather = data[i]?.[idx] ?? null;
+    return this.beaches().map((beach) => {
+      const weather = data.get(beach.id)?.[idx] ?? null;
       return {
         beach,
         weather,
@@ -74,13 +77,33 @@ export class AppState {
     if (lang.value === 'en' || lang.value === 'el') this.lang.set(lang.value);
     else if (!navigator.language?.startsWith('el')) this.lang.set('en');
     if (favs.value) this.favorites.set(new Set(JSON.parse(favs.value)));
-    this.loadWeather();
     this.locate(false);
+    await this.loadBeaches();
+  }
+
+  /** Φορτώνει παραλίες: πρώτα από τη συσκευή (γρήγορα), μετά από τη βάση (πιο φρέσκα). */
+  async loadBeaches() {
+    const cached = await this.repo.cached();
+    if (cached) {
+      this.beaches.set(cached);
+      this.beachSource.set('cache');
+    }
+    const weatherDone = this.loadWeather();
+    const remote = await this.repo.remote();
+    if (remote) {
+      const changed = locationKey(remote) !== locationKey(this.beaches());
+      this.beaches.set(remote);
+      this.beachSource.set('remote');
+      // Αν άλλαξαν παραλίες ή θέσεις, ξαναζητάμε καιρό για τις καινούριες.
+      if (changed) {
+        await weatherDone;
+        await this.loadWeather();
+      }
+    }
   }
 
   hourlyFor(beachId: string): HourWeather[] {
-    const i = this.beaches.findIndex((b) => b.id === beachId);
-    return this.hourly()[i] ?? [];
+    return this.hourly().get(beachId) ?? [];
   }
 
   toggleLang() {
@@ -110,10 +133,12 @@ export class AppState {
   }
 
   async loadWeather() {
+    const beaches = this.beaches();
+    if (!beaches.length) return;
     this.loading.set(true);
     this.error.set(false);
-    const lats = this.beaches.map((b) => b.lat.toFixed(4)).join(',');
-    const lons = this.beaches.map((b) => b.lon.toFixed(4)).join(',');
+    const lats = beaches.map((b) => b.lat.toFixed(4)).join(',');
+    const lons = beaches.map((b) => b.lon.toFixed(4)).join(',');
     const common = `latitude=${lats}&longitude=${lons}&forecast_days=${DAYS}&timezone=Europe%2FAthens`;
     try {
       const forecastReq = fetch(
@@ -128,10 +153,11 @@ export class AppState {
       const fcList: any[] = Array.isArray(fc) ? fc : [fc];
       const marList: any[] | null = mar ? (Array.isArray(mar) ? mar : [mar]) : null;
 
-      const data = fcList.map((f, i) => {
+      const data = new Map<string, HourWeather[]>();
+      fcList.forEach((f, i) => {
         const h = f.hourly;
         const m = marList?.[i]?.hourly;
-        return (h.time as string[]).map<HourWeather>((time, j) => ({
+        data.set(beaches[i].id, (h.time as string[]).map<HourWeather>((time, j) => ({
           time,
           windSpeed: h.wind_speed_10m[j] ?? 0,
           windDir: h.wind_direction_10m[j] ?? 0,
@@ -139,10 +165,11 @@ export class AppState {
           temp: h.temperature_2m[j] ?? null,
           waveHeight: m?.wave_height?.[j] ?? null,
           seaTemp: m?.sea_surface_temperature?.[j] ?? null,
-        }));
+        })));
       });
       this.hourly.set(data);
-      const now = currentHourIndex(data[0]?.map((d) => d.time) ?? []);
+      const first = data.values().next().value ?? [];
+      const now = currentHourIndex(first.map((d) => d.time));
       this.nowIndex.set(now);
       this.hourIndex.set(now);
     } catch (e) {
@@ -152,6 +179,10 @@ export class AppState {
       this.loading.set(false);
     }
   }
+}
+
+function locationKey(list: Beach[]) {
+  return list.map((b) => `${b.id}@${b.lat.toFixed(4)},${b.lon.toFixed(4)}`).join('|');
 }
 
 function currentHourIndex(times: string[]): number {

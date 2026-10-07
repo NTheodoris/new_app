@@ -68,6 +68,9 @@ const DICT = {
     en: 'Weather: Open-Meteo. Wave estimates are indicative — always check the sea on site.',
   },
   language: { el: 'English', en: 'Ελληνικά' },
+  src_bundled: { el: 'Παραλίες: ενσωματωμένα δεδομένα', en: 'Beaches: built-in data' },
+  src_cache: { el: 'Παραλίες: αποθηκευμένα στη συσκευή', en: 'Beaches: saved on device' },
+  src_remote: { el: 'Παραλίες: ζωντανά από το GitHub ✓', en: 'Beaches: live from GitHub ✓' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type DictKey = keyof typeof DICT;

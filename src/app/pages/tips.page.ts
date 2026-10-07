@@ -39,6 +39,7 @@ interface Tip { icon: string; title: { el: string; en: string }; body: { el: str
       </ion-card>
 
       <p class="note">{{ state.t('dataNote') }}</p>
+      <p class="note">{{ state.t($any('src_' + state.beachSource())) }} · {{ state.beaches().length }}</p>
     </ion-content>
   `,
   styles: [`
