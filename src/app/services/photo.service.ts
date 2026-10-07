@@ -3,11 +3,11 @@ import { Preferences } from '@capacitor/preferences';
 import { Beach, Photo } from '../models';
 
 const API = 'https://commons.wikimedia.org/w/api.php';
-const CACHE_PREFIX = 'photos-v1:';
+const CACHE_PREFIX = 'photos-v2:';
 const CACHE_DAYS = 7;
 const MAX_PHOTOS = 6;
-/** Πόσο μακριά από το σημείο της παραλίας ψάχνουμε φωτογραφίες (μέτρα). */
-const RADIUS_M = 700;
+/** Πόσο μακριά από το σημείο της παραλίας ψάχνουμε φωτογραφίες με γεωγραφική θέση (μέτρα). */
+const RADIUS_M = 2000;
 
 /** Λέξεις που δείχνουν ότι η φωτογραφία είναι πιθανότατα παραλία/θάλασσα. */
 const BEACH_WORDS = ['beach', 'παραλ', 'plaz', 'plage', 'strand', 'spiaggia', 'sea', 'θάλασσ', 'coast', 'bay', 'όρμο', 'shore', 'sunset'];
@@ -20,7 +20,9 @@ interface CacheEntry { at: number; photos: Photo[] }
  * Φωτογραφίες παραλιών από το Wikimedia Commons.
  *
  *  - Αν η παραλία έχει πεδίο "photos" στο beaches.json, δείχνει ΑΚΡΙΒΩΣ αυτές (επιλεγμένες με το χέρι).
- *  - Αλλιώς ψάχνει φωτογραφίες με γεωγραφική θέση κοντά στην παραλία και κρατά τις πιο σχετικές.
+ *  - Αλλιώς συνδυάζει: αναζήτηση με το όνομα (π.χ. "Petra Lesbos beach", "Πέτρα Λέσβος")
+ *    και φωτογραφίες με γεωγραφική θέση κοντά στην παραλία. Πρώτα μπαίνουν όσες δείχνουν παραλία/θάλασσα,
+ *    και αν είναι λίγες, συμπληρώνονται με φωτογραφίες του χωριού/της περιοχής.
  *
  * Όλες οι φωτογραφίες του Commons έχουν ελεύθερη άδεια· η εφαρμογή δείχνει πάντα δημιουργό και άδεια.
  */
@@ -42,7 +44,7 @@ export class PhotoService {
     const cached = await this.readCache(key);
     if (cached) return cached;
     try {
-      const photos = beach.photos?.length ? await this.byTitles(beach.photos) : await this.nearby(beach);
+      const photos = beach.photos?.length ? await this.byTitles(beach.photos) : await this.find(beach);
       await Preferences.set({ key: CACHE_PREFIX + key, value: JSON.stringify({ at: Date.now(), photos }) });
       return photos;
     } catch (e) {
@@ -74,34 +76,57 @@ export class PhotoService {
       .filter((p): p is Photo => !!p);
   }
 
-  /** Φωτογραφίες τραβηγμένες κοντά στην παραλία, ταξινομημένες κατά σχετικότητα. */
-  private async nearby(beach: Beach): Promise<Photo[]> {
-    const pages = await this.query({
-      generator: 'geosearch',
-      ggscoord: `${beach.lat}|${beach.lon}`,
-      ggsradius: String(RADIUS_M),
-      ggsnamespace: '6',
-      ggslimit: '40',
-    });
-    const names = [beach.name.el, beach.name.en, beach.area.en]
+  /** Αναζήτηση με όνομα + γεωγραφική αναζήτηση, ταξινομημένα κατά σχετικότητα. */
+  private async find(beach: Beach): Promise<Photo[]> {
+    const main = (n: string) => n.split(/[–(]/)[0].trim(); // "Μόλυβος – Ψηριάρα" → "Μόλυβος"
+    const en = main(beach.name.en), el = main(beach.name.el);
+    const areaEn = beach.area.en && beach.area.en !== en ? main(beach.area.en) : '';
+    const searches = [
+      `${en} Lesbos beach`,
+      `${en} Lesvos`,
+      `${el} Λέσβος`,
+      ...(areaEn ? [`${areaEn} Lesbos beach`] : []),
+    ].map((q) =>
+      this.query({ generator: 'search', gsrsearch: `${q} filetype:bitmap`, gsrnamespace: '6', gsrlimit: '25' })
+        .then((pages) => pages.map((p) => ({ p, via: 'search' as const })))
+        .catch(() => []),
+    );
+    const geo = this.query({
+      generator: 'geosearch', ggscoord: `${beach.lat}|${beach.lon}`, ggsradius: String(RADIUS_M), ggsnamespace: '6', ggslimit: '50',
+    })
+      .then((pages) => pages.map((p) => ({ p, via: 'geo' as const })))
+      .catch(() => []);
+
+    const all = (await Promise.all([...searches, geo])).flat();
+    const names = [beach.name.el, beach.name.en, beach.area.el, beach.area.en]
       .flatMap((n) => n.split(/[\s–\-(),.]+/))
       .map(fold)
-      .filter((w) => w.length >= 4);
+      .filter((w) => w.length >= 4 && !['beach', 'lesbos', 'lesvos', 'coast', 'south', 'east', 'west', 'north'].includes(w));
 
-    return pages
-      .filter((p) => /^image\/(jpeg|png|webp)$/.test(p.imageinfo?.[0]?.mime ?? ''))
-      .filter((p) => (p.imageinfo?.[0]?.width ?? 0) >= 640)
-      .map((p) => {
-        const text = fold(`${p.title} ${stripHtml(meta(p, 'ImageDescription'))} ${stripHtml(meta(p, 'Categories'))}`);
-        if (SKIP_WORDS.some((w) => text.includes(fold(w)))) return null;
-        let score = 0;
-        if (BEACH_WORDS.some((w) => text.includes(fold(w)))) score += 3;
-        if (names.some((n) => text.includes(n))) score += 2;
-        score -= (p.index ?? 0) / 100; // ελαφρύ προβάδισμα στις πιο κοντινές
-        return { p, score };
-      })
-      .filter((x): x is { p: any; score: number } => !!x && x.score > 0)
-      .sort((a, b) => b.score - a.score)
+    const seen = new Set<string>();
+    const scored: { p: any; score: number; beachy: boolean }[] = [];
+    for (const { p, via } of all) {
+      if (!p?.title || seen.has(p.title)) continue;
+      seen.add(p.title);
+      const ii = p.imageinfo?.[0];
+      if (!/^image\/(jpeg|png|webp)$/.test(ii?.mime ?? '') || (ii?.width ?? 0) < 640) continue;
+      const text = fold(`${p.title} ${stripHtml(meta(p, 'ImageDescription'))} ${stripHtml(meta(p, 'Categories'))}`);
+      if (SKIP_WORDS.some((w) => text.includes(fold(w)))) continue;
+      const beachy = BEACH_WORDS.some((w) => text.includes(fold(w)));
+      const named = names.some((n) => text.includes(n));
+      const lesvos = /lesbos|lesvos|λεσβ|mytilene|mytilini|μυτιλην/.test(text);
+      // Από αναζήτηση με όνομα: πρέπει να αναφέρει τη Λέσβο (αλλιώς π.χ. "Petra" φέρνει την Ιορδανία).
+      if (via === 'search' && !lesvos) continue;
+      let score = (beachy ? 4 : 0) + (named ? 3 : 0) + (lesvos ? 1 : 0) + (via === 'geo' ? 1 : 0);
+      if (via === 'geo') score -= Math.min(1, (p.index ?? 0) / 50); // πιο κοντινές λίγο ψηλότερα
+      if (!beachy && !named && via === 'geo' && score < 1) continue;
+      scored.push({ p, score, beachy });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    // Πρώτα όσες δείχνουν παραλία/θάλασσα· αν είναι λιγότερες από 3, συμπληρώνουμε με την περιοχή.
+    const beachPhotos = scored.filter((x) => x.beachy);
+    const picked = beachPhotos.length >= 3 ? beachPhotos : [...beachPhotos, ...scored.filter((x) => !x.beachy)];
+    return picked
       .slice(0, MAX_PHOTOS)
       .map((x) => toPhoto(x.p))
       .filter((p): p is Photo => !!p);
