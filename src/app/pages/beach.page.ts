@@ -77,7 +77,7 @@ import { TimePickerComponent } from '../components/time-picker.component';
         <p class="desc">{{ v.beach.desc[lang] }}</p>
 
         <div class="chips">
-          <ion-chip>{{ state.t(v.beach.surface) }}</ion-chip>
+          @if (v.beach.surface) { <ion-chip>{{ state.t(v.beach.surface) }}</ion-chip> }
           @if (v.beach.organized) { <ion-chip>⛱️ {{ state.t('organized') }}</ion-chip> }
           @for (tag of v.beach.tags; track tag) {
             <ion-chip>{{ state.t($any('tag_' + tag)) }}</ion-chip>

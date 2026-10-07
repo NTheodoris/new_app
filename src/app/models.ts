@@ -16,8 +16,10 @@ export interface Beach {
   facing: number;
   /** 0..1 — πόσο εκτεθειμένη είναι στο ανοιχτό πέλαγος. */
   exposure: number;
-  surface: Surface;
-  organized: boolean;
+  /** null = δεν είναι επιβεβαιωμένο */
+  surface: Surface | null;
+  /** null = δεν είναι επιβεβαιωμένο */
+  organized: boolean | null;
   tags: Tag[];
   desc: Text;
 }

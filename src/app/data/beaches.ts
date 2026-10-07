@@ -3,91 +3,88 @@ import { Beach } from '../models';
 /**
  * Παραλίες της Λέσβου.
  *
+ * Συντεταγμένες: επίσημα σημεία ελέγχου νερών κολύμβησης που δηλώνει η Ελλάδα
+ * στην Ευρωπαϊκή Υπηρεσία Περιβάλλοντος (EEA, Bathing Water Directive).
+ * Πηγή: https://marine.discomap.eea.europa.eu/arcgis/rest/services/BathingWater/BathingWater_Dyna_WM/MapServer
+ * Όπου η EEA έχει δύο σημεία για την ίδια παραλία, κρατήθηκε ο μέσος όρος τους.
+ *
  * facing   = προς ποια κατεύθυνση "κοιτάει" η παραλία (μοίρες, 0 = Βορράς, 90 = Ανατολή).
  *            Ο άνεμος που φυσάει ΑΠΟ αυτή την κατεύθυνση έρχεται από τη θάλασσα και φέρνει κύμα.
  * exposure = πόσο ανοιχτή είναι στο πέλαγος (1 = ανοιχτό πέλαγος, 0.3 = κλειστός κόλπος).
+ *            ⚠️ facing και exposure είναι ΕΚΤΙΜΗΣΕΙΣ, όχι επίσημα δεδομένα — θέλουν έλεγχο επί τόπου.
  *
- * Οι συντεταγμένες και οι προσανατολισμοί είναι κατά προσέγγιση και καλό είναι
- * να ελεγχθούν επί τόπου / σε χάρτη πριν από δημοσίευση.
+ * surface / organized = null όταν δεν είναι επιβεβαιωμένα.
+ * Περιγραφές, τύπος ακτής και παροχές για όσες υπάρχουν προέρχονται από τον οδηγό του lesvos.com.
  */
 export const BEACHES: Beach[] = [
   // ---------- Βόρεια ακτή ----------
   {
-    id: 'molyvos', lat: 39.3655, lon: 26.1725, facing: 265, exposure: 0.8,
-    name: { el: 'Μόλυβος', en: 'Molyvos' }, area: { el: 'Μήθυμνα', en: 'Mithymna' },
-    surface: 'pebbles', organized: true, tags: ['tavern', 'sunset', 'snorkel'],
+    id: 'molyvos', lat: 39.3677, lon: 26.1736, facing: 285, exposure: 0.8,
+    name: { el: 'Μόλυβος – Ψηριάρα', en: 'Molyvos – Psiriara' }, area: { el: 'Μήθυμνα', en: 'Mithymna' },
+    surface: 'pebbles', organized: true, tags: ['tavern', 'sunset'],
     desc: {
-      el: 'Στενή παραλία κάτω από το κάστρο, με καφέ και ταβέρνες. Βότσαλο και βράχια — πάρε παπούτσια θαλάσσης.',
-      en: 'Narrow strip below the castle with cafés and tavernas. Pebbles and rocks — bring water shoes.',
+      el: 'Η παραλία του Μολύβου, κάτω από το κάστρο, με καφέ και ταβέρνες. Βότσαλο και βράχια — πάρε παπούτσια θαλάσσης.',
+      en: 'Molyvos town beach below the castle, with cafés and tavernas. Pebbles and rocks — bring water shoes.',
     },
   },
   {
-    id: 'delfinia', lat: 39.3520, lon: 26.1760, facing: 275, exposure: 0.8,
-    name: { el: 'Δελφίνια (Μόλυβος)', en: 'Delfinia (Molyvos)' }, area: { el: 'Μήθυμνα', en: 'Mithymna' },
-    surface: 'sand', organized: true, tags: ['family', 'sunset'],
-    desc: {
-      el: 'Αμμώδης οργανωμένη παραλία νότια του Μολύβου, περίπου 20 λεπτά με τα πόδια από την πόλη.',
-      en: 'Organised sandy beach south of Molyvos, about a 20-minute walk from town.',
-    },
-  },
-  {
-    id: 'petra', lat: 39.3255, lon: 26.1785, facing: 290, exposure: 0.8,
+    id: 'petra', lat: 39.3323, lon: 26.1795, facing: 280, exposure: 0.8,
     name: { el: 'Πέτρα', en: 'Petra' }, area: { el: 'Πέτρα', en: 'Petra' },
     surface: 'sand', organized: true, tags: ['family', 'tavern', 'sunset'],
     desc: {
-      el: 'Μεγάλη αμμώδης παραλία μπροστά στο χωριό, με όλες τις παροχές. Ανέβα στην Παναγία τη Γλυκοφιλούσα για θέα.',
-      en: 'Long sandy beach in front of the village with all amenities. Climb to the rock-top church for the view.',
+      el: 'Μεγάλη αμμώδης οργανωμένη παραλία μπροστά στο χωριό, με όλες τις παροχές.',
+      en: 'Long, organised sandy beach in front of the village with all amenities.',
     },
   },
   {
-    id: 'anaxos', lat: 39.3125, lon: 26.1610, facing: 260, exposure: 0.8,
+    id: 'anaxos', lat: 39.3199, lon: 26.1484, facing: 300, exposure: 0.8,
     name: { el: 'Άναξος', en: 'Anaxos' }, area: { el: 'Σκουτάρος', en: 'Skoutaros' },
-    surface: 'mixed', organized: true, tags: ['family', 'sunset', 'quiet'],
+    surface: 'mixed', organized: true, tags: ['sunset', 'quiet'],
     desc: {
-      el: 'Ήσυχος κόλπος νότια της Πέτρας, με ρηχά νερά και υπέροχα ηλιοβασιλέματα.',
-      en: 'Quiet bay south of Petra with shallow water and lovely sunsets.',
+      el: 'Παλιό τουριστικό θέρετρο, σήμερα πιο ήσυχο, με λιγότερες παροχές.',
+      en: 'Former package-holiday resort, now quieter, with fewer facilities.',
     },
   },
   {
-    id: 'eftalou', lat: 39.3780, lon: 26.2250, facing: 10, exposure: 1,
-    name: { el: 'Εφταλού', en: 'Eftalou' }, area: { el: 'Μήθυμνα', en: 'Mithymna' },
-    surface: 'pebbles', organized: false, tags: ['hotspring', 'quiet', 'nudist'],
+    id: 'ampelia', lat: 39.3090, lon: 26.1291, facing: 330, exposure: 0.9,
+    name: { el: 'Αμπελιά', en: 'Ampelia' }, area: { el: 'Σκουτάρος', en: 'Skoutaros' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Βοτσαλωτή ακτή με θερμές πηγές δίπλα στη θάλασσα. Εκτεθειμένη στους βοριάδες.',
-      en: 'Pebbly coast with hot springs right by the sea. Exposed to northerly winds.',
+      el: 'Παραλία στη βόρεια ακτή, δυτικά της Αναξού.',
+      en: 'Beach on the north coast, west of Anaxos.',
     },
   },
   {
-    id: 'skala-sykamineas', lat: 39.3720, lon: 26.3060, facing: 0, exposure: 1,
-    name: { el: 'Σκάλα Συκαμινέας', en: 'Skala Sykamineas' }, area: { el: 'Συκαμινιά', en: 'Sykaminia' },
-    surface: 'pebbles', organized: false, tags: ['tavern', 'quiet'],
+    id: 'eftalou', lat: 39.3801, lon: 26.2183, facing: 10, exposure: 1,
+    name: { el: 'Εφταλού – Άγιοι Ανάργυροι', en: 'Eftalou – Agioi Anargyroi' }, area: { el: 'Μήθυμνα', en: 'Mithymna' },
+    surface: 'pebbles', organized: false, tags: ['hotspring', 'nudist'],
     desc: {
-      el: 'Γραφικό ψαροχώρι με το εκκλησάκι της Γοργόνας και ψαροταβέρνες πάνω στο κύμα.',
-      en: 'Picturesque fishing harbour with the "Mermaid" chapel and seaside fish tavernas.',
+      el: 'Βοτσαλωτή ακτή με θερμές πηγές δίπλα στη θάλασσα και εστιατόριο. Συχνά με αέρα.',
+      en: 'Pebbly coast with hot springs right by the sea and a restaurant. Often windy.',
     },
   },
   {
-    id: 'tsonia', lat: 39.3170, lon: 26.3950, facing: 35, exposure: 1,
+    id: 'kagia', lat: 39.3740, lon: 26.3125, facing: 0, exposure: 1,
+    name: { el: 'Κάγια (Σκάλα Συκαμινέας)', en: 'Kagia (Skala Sykamineas)' }, area: { el: 'Συκαμινιά', en: 'Sykaminia' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στη βόρεια ακτή, κοντά στη Σκάλα Συκαμινέας.',
+      en: 'Beach on the north coast near Skala Sykamineas.',
+    },
+  },
+  {
+    id: 'tsonia', lat: 39.3681, lon: 26.3570, facing: 20, exposure: 1,
     name: { el: 'Τσόνια', en: 'Tsonia' }, area: { el: 'Κλειό', en: 'Klio' },
-    surface: 'sand', organized: false, tags: ['tavern', 'quiet', 'snorkel'],
-    desc: {
-      el: 'Απομονωμένη παραλία με κοκκινωπή άμμο, πεντακάθαρα νερά και ψαροταβέρνα.',
-      en: 'Remote beach with reddish sand, crystal-clear water and a fish taverna.',
-    },
-  },
-  {
-    id: 'aspropotamos', lat: 39.2880, lon: 26.3990, facing: 75, exposure: 1,
-    name: { el: 'Ασπροπόταμος', en: 'Aspropotamos' }, area: { el: 'Μανταμάδος', en: 'Mantamados' },
-    surface: 'sand', organized: false, tags: ['quiet'],
-    desc: {
-      el: 'Μεγάλη αμμουδιά με λίγες παροχές. Συνδύασέ τη με επίσκεψη στα κεραμεία του Μανταμάδου.',
-      en: 'Long sandy stretch with few facilities. Combine it with the potteries of Mantamados.',
-    },
-  },
-  {
-    id: 'kalo-limani', lat: 39.3080, lon: 26.0750, facing: 0, exposure: 0.9,
-    name: { el: 'Καλό Λιμάνι', en: 'Kalo Limani' }, area: { el: 'Σκαλοχώρι', en: 'Skalochori' },
     surface: 'sand', organized: false, tags: ['tavern', 'quiet'],
+    desc: {
+      el: 'Απομονωμένη παραλία με κοκκινωπή άμμο, καθαρά νερά και ψαροταβέρνα.',
+      en: 'Remote beach with reddish sand, clear water and a fish taverna.',
+    },
+  },
+  {
+    id: 'kalo-limani', lat: 39.2934, lon: 26.0417, facing: 350, exposure: 0.9,
+    name: { el: 'Καλό Λιμάνι', en: 'Kalo Limani' }, area: { el: 'Σκαλοχώρι', en: 'Skalochori' },
+    surface: 'sand', organized: false, tags: ['tavern'],
     desc: {
       el: 'Η παραλία των ντόπιων του Σκαλοχωρίου, με ψαροταβέρνα. Γεμίζει το απόγευμα.',
       en: 'The local beach of Skalochori with a fish taverna. Busy in the afternoon.',
@@ -95,222 +92,313 @@ export const BEACHES: Beach[] = [
   },
   // ---------- Δυτική Λέσβος ----------
   {
-    id: 'gavathas', lat: 39.3080, lon: 25.9950, facing: 330, exposure: 0.9,
+    id: 'gavathas', lat: 39.2809, lon: 25.9736, facing: 330, exposure: 0.9,
     name: { el: 'Γαβαθάς', en: 'Gavathas' }, area: { el: 'Άντισσα', en: 'Antissa' },
-    surface: 'sand', organized: true, tags: ['family', 'tavern', 'sunset'],
+    surface: 'sand', organized: true, tags: ['family'],
     desc: {
       el: 'Ρηχή αμμουδιά, ιδανική για οικογένειες. Η βόρεια πλευρά παίρνει περισσότερο αέρα.',
       en: 'Shallow sandy beach, great for families. The northern end catches more wind.',
     },
   },
   {
-    id: 'lapsarna', lat: 39.2990, lon: 26.0250, facing: 345, exposure: 0.9,
-    name: { el: 'Λάψαρνα', en: 'Lapsarna' }, area: { el: 'Άντισσα', en: 'Antissa' },
-    surface: 'sand', organized: false, tags: ['quiet', 'family'],
-    desc: {
-      el: 'Ρηχή, ήσυχη αμμουδιά χωρίς παροχές. Με βοριά σηκώνει κύμα.',
-      en: 'Shallow, quiet sandy beach with no facilities. Gets waves with northerly winds.',
-    },
-  },
-  {
-    id: 'kampos-antissas', lat: 39.2830, lon: 25.9700, facing: 320, exposure: 1,
-    name: { el: 'Κάμπος Άντισσας', en: 'Kampos Antissas' }, area: { el: 'Άντισσα', en: 'Antissa' },
-    surface: 'mixed', organized: false, tags: ['surf', 'quiet'],
-    desc: {
-      el: 'Μεγάλη, άγρια παραλία που αγαπούν οι σέρφερ. Προσοχή στα ρεύματα όταν φυσάει.',
-      en: 'Long, wild beach loved by surfers. Beware of currents when it is windy.',
-    },
-  },
-  {
-    id: 'faneromeni', lat: 39.2330, lon: 25.8680, facing: 290, exposure: 1,
-    name: { el: 'Φανερωμένη', en: 'Faneromeni' }, area: { el: 'Σίγρι', en: 'Sigri' },
-    surface: 'sand', organized: false, tags: ['surf', 'sunset', 'family'],
-    desc: {
-      el: 'Μεγάλη αμμουδιά βόρεια του Σιγρίου, συχνά με αέρα και κρύο νερό. Η μικρή Φανερωμένη έχει ρηχά λιμνάκια για παιδιά.',
-      en: 'Big sandy beach north of Sigri, often windy with cool water. Little Faneromeni has shallow pools for kids.',
-    },
-  },
-  {
-    id: 'sigri', lat: 39.2115, lon: 25.8540, facing: 250, exposure: 0.5,
+    id: 'sigri', lat: 39.2083, lon: 25.8547, facing: 260, exposure: 0.5,
     name: { el: 'Σίγρι', en: 'Sigri' }, area: { el: 'Σίγρι', en: 'Sigri' },
-    surface: 'sand', organized: true, tags: ['family', 'tavern', 'sunset'],
+    surface: 'sand', organized: true, tags: ['family', 'sunset'],
     desc: {
-      el: 'Προστατευμένη παραλία του χωριού με θέα στο κάστρο. Κοντά το Μουσείο Απολιθωμένου Δάσους.',
-      en: 'Sheltered village beach with castle views. The Petrified Forest Museum is nearby.',
+      el: 'Προστατευμένη αμμουδιά του χωριού με θέα στο κάστρο. Κρύα νερά, γεμάτη το καλοκαίρι.',
+      en: 'Sheltered village beach with castle views. Cool water, busy in summer.',
     },
   },
   {
-    id: 'tsichliotas', lat: 39.1800, lon: 25.8780, facing: 240, exposure: 1,
-    name: { el: 'Τσιχλιώτας', en: 'Tsichliotas' }, area: { el: 'Σίγρι – Ερεσός', en: 'Sigri – Eresos' },
-    surface: 'mixed', organized: false, tags: ['quiet'],
-    desc: {
-      el: 'Απομακρυσμένη παραλία στον δρόμο Σιγρίου–Ερεσού, μέσα στο απολιθωμένο δάσος. Καμία παροχή.',
-      en: 'Remote beach on the Sigri–Eresos road inside the petrified forest area. No facilities.',
-    },
-  },
-  {
-    id: 'skala-eresou', lat: 39.1370, lon: 25.9320, facing: 185, exposure: 1,
+    id: 'skala-eresou', lat: 39.1354, lon: 25.9280, facing: 185, exposure: 1,
     name: { el: 'Σκάλα Ερεσού', en: 'Skala Eresou' }, area: { el: 'Ερεσός', en: 'Eresos' },
-    surface: 'sand', organized: true, tags: ['family', 'tavern', 'nudist', 'sunset'],
+    surface: 'sand', organized: true, tags: ['family', 'tavern', 'nudist'],
     desc: {
-      el: 'Για πολλούς η καλύτερη παραλία του νησιού: 2 χλμ. σκούρα άμμος, παραλιακά μπαράκια και ζωντανή ατμόσφαιρα.',
-      en: 'For many the best beach on the island: 2 km of dark sand, beach bars and a lively vibe.',
+      el: 'Για πολλούς η καλύτερη παραλία του νησιού: μεγάλη οργανωμένη αμμουδιά. Γυμνιστική ζώνη στο δυτικό άκρο.',
+      en: 'For many the best beach on the island: a long organised sandy beach. Nudist area at the western end.',
     },
   },
   {
-    id: 'tavari', lat: 39.0870, lon: 26.0770, facing: 200, exposure: 0.9,
+    id: 'tavari', lat: 39.1087, lon: 25.9915, facing: 200, exposure: 0.9,
     name: { el: 'Ταβάρι', en: 'Tavari' }, area: { el: 'Μεσότοπος', en: 'Mesotopos' },
-    surface: 'mixed', organized: true, tags: ['tavern', 'family'],
+    surface: 'mixed', organized: true, tags: ['tavern'],
     desc: {
-      el: 'Ζεστά νερά, προστατευμένος όρμος και εξαιρετικές ψαροταβέρνες.',
-      en: 'Warm water, a sheltered cove and excellent fish tavernas.',
+      el: 'Προστατευμένος όρμος με ζεστά νερά και εξαιρετικές ψαροταβέρνες.',
+      en: 'Sheltered cove with warm water and excellent fish tavernas.',
     },
   },
   {
-    id: 'podaras', lat: 39.0830, lon: 26.0580, facing: 190, exposure: 1,
-    name: { el: 'Ποδαράς', en: 'Podaras' }, area: { el: 'Μεσότοπος', en: 'Mesotopos' },
-    surface: 'sand', organized: false, tags: ['quiet', 'snorkel'],
+    id: 'vathi-kritiri', lat: 39.1031, lon: 26.0872, facing: 190, exposure: 1,
+    name: { el: 'Βαθύ Κρητήρι', en: 'Vathi Kritiri' }, area: { el: 'Νοτιοδυτική ακτή', en: 'South-west coast' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Απόμερη παραλία με πεντακάθαρα νερά και μια καντίνα.',
-      en: 'Secluded beach with crystal-clear water and a snack bar.',
-    },
-  },
-  {
-    id: 'kroussos', lat: 39.0880, lon: 26.1050, facing: 180, exposure: 1,
-    name: { el: 'Χρούσος', en: 'Chroussos' }, area: { el: 'Μεσότοπος', en: 'Mesotopos' },
-    surface: 'sand', organized: false, tags: ['shade', 'family'],
-    desc: {
-      el: 'Ζεστά νερά και δέντρα για ίσκιο. Γεμίζει τα Σαββατοκύριακα του καλοκαιριού.',
-      en: 'Warm water and trees for shade. Busy on summer weekends.',
+      el: 'Παραλία στη νοτιοδυτική ακτή, ανατολικά του Ταβαριού.',
+      en: 'Beach on the south-west coast, east of Tavari.',
     },
   },
   // ---------- Κόλπος Καλλονής ----------
   {
-    id: 'skala-kallonis', lat: 39.2050, lon: 26.2150, facing: 180, exposure: 0.35,
+    id: 'skala-kallonis', lat: 39.2055, lon: 26.2095, facing: 180, exposure: 0.35,
     name: { el: 'Σκάλα Καλλονής', en: 'Skala Kallonis' }, area: { el: 'Καλλονή', en: 'Kalloni' },
     surface: 'sand', organized: true, tags: ['family', 'tavern', 'birds'],
     desc: {
-      el: 'Πολύ ρηχά νερά μέσα στον κόλπο — ιδανική για μικρά παιδιά. Δοκίμασε σαρδέλα Καλλονής. Κοντά υπάρχουν αλυκές με φλαμίνγκο.',
-      en: 'Very shallow water inside the gulf — ideal for small kids. Try the famous Kalloni sardines. Flamingos at the nearby salt pans.',
+      el: 'Πολύ ρηχά νερά μέσα στον κόλπο — ιδανική για μικρά παιδιά. Περιοχή για παρατήρηση πουλιών.',
+      en: 'Very shallow water inside the gulf — ideal for small kids. A birdwatching area.',
     },
   },
   {
-    id: 'achladeri', lat: 39.1720, lon: 26.2570, facing: 210, exposure: 0.35,
-    name: { el: 'Αχλαδερή (Αρχαία Πύρρα)', en: 'Achladeri (Ancient Pyrrha)' }, area: { el: 'Κόλπος Καλλονής', en: 'Gulf of Kalloni' },
-    surface: 'pebbles', organized: false, tags: ['snorkel', 'tavern', 'quiet'],
+    id: 'mentousi', lat: 39.1847, lon: 26.1581, facing: 120, exposure: 0.35,
+    name: { el: 'Μεντούσι', en: 'Mentousi' }, area: { el: 'Κόλπος Καλλονής', en: 'Gulf of Kalloni' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Βραχώδης ακτή με ψαροταβέρνα. Με μάσκα βλέπεις υπολείμματα της βυθισμένης αρχαίας Πύρρας.',
-      en: 'Rocky shore with a fish taverna. Snorkel over remains of sunken ancient Pyrrha.',
+      el: 'Παραλία στη δυτική πλευρά του κόλπου Καλλονής.',
+      en: 'Beach on the western side of the Gulf of Kalloni.',
     },
   },
   {
-    id: 'nyfida', lat: 39.0430, lon: 26.1680, facing: 260, exposure: 0.5,
+    id: 'skala-polichnitou', lat: 39.1056, lon: 26.1691, facing: 270, exposure: 0.4,
+    name: { el: 'Σκάλα Πολιχνίτου', en: 'Skala Polichnitou' }, area: { el: 'Πολιχνίτος', en: 'Polichnitos' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία μέσα στον κόλπο Καλλονής, στη Σκάλα Πολιχνίτου.',
+      en: 'Beach inside the Gulf of Kalloni at Skala Polichnitou.',
+    },
+  },
+  {
+    id: 'nyfida', lat: 39.0894, lon: 26.1328, facing: 220, exposure: 0.7,
     name: { el: 'Νυφίδα', en: 'Nyfida' }, area: { el: 'Πολιχνίτος', en: 'Polichnitos' },
-    surface: 'sand', organized: false, tags: ['tavern', 'family', 'sunset'],
+    surface: 'sand', organized: false, tags: ['tavern', 'family'],
     desc: {
-      el: 'Ρηχή παραλία στην είσοδο του κόλπου Καλλονής, γνωστή για τις ψαροταβέρνες της.',
-      en: 'Shallow beach at the mouth of the Gulf of Kalloni, known for its fish tavernas.',
+      el: 'Ρηχή παραλία κοντά στην είσοδο του κόλπου Καλλονής, γνωστή για τις ψαροταβέρνες της.',
+      en: 'Shallow beach near the mouth of the Gulf of Kalloni, known for its fish tavernas.',
     },
   },
   // ---------- Νότια ακτή ----------
   {
-    id: 'vatera', lat: 38.9860, lon: 26.1950, facing: 190, exposure: 1,
+    id: 'vatera', lat: 39.0191, lon: 26.2039, facing: 180, exposure: 1,
     name: { el: 'Βατερά', en: 'Vatera' }, area: { el: 'Πολιχνίτος', en: 'Polichnitos' },
-    surface: 'mixed', organized: true, tags: ['family', 'tavern'],
+    surface: 'mixed', organized: true, tags: ['family'],
     desc: {
-      el: 'Μία από τις μεγαλύτερες παραλίες της Ελλάδας (≈7 χλμ.). Πάντα βρίσκεις ήσυχο σημείο, ακόμη και τον Αύγουστο.',
-      en: 'One of the longest beaches in Greece (≈7 km). Always room to spread out, even in August.',
+      el: 'Μία από τις μεγαλύτερες παραλίες (≈7 χλμ.). Πάντα βρίσκεις ήσυχο σημείο, ακόμη και τον Αύγουστο.',
+      en: 'One of the longest beaches around (≈7 km). Always room to spread out, even in August.',
     },
   },
   {
-    id: 'tarti', lat: 38.9900, lon: 26.2760, facing: 180, exposure: 0.9,
-    name: { el: 'Τάρτι', en: 'Tarti' }, area: { el: 'Πολιχνίτος', en: 'Polichnitos' },
-    surface: 'sand', organized: true, tags: ['family', 'watersports'],
+    id: 'ammoudeli', lat: 38.9762, lon: 26.3647, facing: 200, exposure: 1,
+    name: { el: 'Αμμουδέλι', en: 'Ammoudeli' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία λίγο δυτικά από την πόλη του Πλωμαρίου.',
+      en: 'Beach just west of Plomari town.',
+    },
+  },
+  {
+    id: 'tarsanas', lat: 38.9735, lon: 26.3749, facing: 180, exposure: 1,
+    name: { el: 'Ταρσανάς – Αγ. Παρασκευή', en: 'Tarsanas – Agia Paraskevi' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
+    surface: null, organized: null, tags: ['snorkel'],
+    desc: {
+      el: 'Παραλία στην πόλη του Πλωμαρίου. Ο οδηγός του lesvos.com προτείνει την περιοχή για μάσκα.',
+      en: 'Beach in Plomari town. The lesvos.com guide recommends the area for snorkelling.',
+    },
+  },
+  {
+    id: 'plakakia', lat: 38.9723, lon: 26.3794, facing: 180, exposure: 1,
+    name: { el: 'Πλακάκια – Κόκκινα Μάρμαρα', en: 'Plakakia – Kokkina Marmara' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία ανατολικά της πόλης του Πλωμαρίου.',
+      en: 'Beach east of Plomari town.',
+    },
+  },
+  {
+    id: 'agios-isidoros', lat: 38.9677, lon: 26.3915, facing: 170, exposure: 1,
+    name: { el: 'Άγιος Ισίδωρος', en: 'Agios Isidoros' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
+    surface: 'sand', organized: true, tags: ['family', 'tavern'],
+    desc: {
+      el: 'Συνέχεια του Πλωμαρίου, με πολλές παροχές. Γεμάτη το καλοκαίρι.',
+      en: 'Continuation of Plomari with plenty of facilities. Busy in summer.',
+    },
+  },
+  {
+    id: 'tarti', lat: 38.9770, lon: 26.4919, facing: 170, exposure: 1,
+    name: { el: 'Τάρτι', en: 'Tarti' }, area: { el: 'Νότια ακτή', en: 'South coast' },
+    surface: 'sand', organized: true, tags: ['watersports'],
     desc: {
       el: 'Δημοφιλής οργανωμένη παραλία με θαλάσσια σπορ και αρκετές μικρότερες παραλίες τριγύρω.',
       en: 'Popular organised beach with water sports and several smaller coves nearby.',
     },
   },
   {
-    id: 'melinta', lat: 38.9760, lon: 26.3150, facing: 200, exposure: 1,
-    name: { el: 'Μελίντα', en: 'Melinta' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
-    surface: 'pebbles', organized: false, tags: ['tavern', 'quiet', 'snorkel'],
+    id: 'tsilia', lat: 38.9805, lon: 26.5146, facing: 160, exposure: 1,
+    name: { el: 'Τσίλια', en: 'Tsilia' }, area: { el: 'Νότια ακτή', en: 'South coast' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Μικρός όρμος με βότσαλο, ταβέρνα και πολύ καθαρά νερά.',
-      en: 'Small pebbly cove with a taverna and very clear water.',
+      el: 'Παραλία στη νότια ακτή, ανατολικά του Τάρτι.',
+      en: 'Beach on the south coast, east of Tarti.',
     },
   },
   {
-    id: 'plomari', lat: 38.9730, lon: 26.3680, facing: 180, exposure: 1,
-    name: { el: 'Πλωμάρι', en: 'Plomari' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
-    surface: 'sand', organized: true, tags: ['snorkel', 'tavern'],
-    desc: {
-      el: 'Η παραλία της πόλης του ούζου. Βραχώδης βυθός, ιδανικός για μάσκα. Επίσκεψη σε αποστακτήριο ούζου!',
-      en: 'The town beach of ouzo country. Rocky seabed, great for snorkelling. Visit an ouzo distillery!',
-    },
-  },
-  {
-    id: 'agios-isidoros', lat: 38.9670, lon: 26.3940, facing: 170, exposure: 1,
-    name: { el: 'Άγιος Ισίδωρος', en: 'Agios Isidoros' }, area: { el: 'Πλωμάρι', en: 'Plomari' },
-    surface: 'mixed', organized: true, tags: ['family', 'tavern'],
-    desc: {
-      el: 'Συνέχεια του Πλωμαρίου, με ξενοδοχεία και ταβέρνες. Γεμάτη το καλοκαίρι.',
-      en: 'Continuation of Plomari with hotels and tavernas. Busy in summer.',
-    },
-  },
-  // ---------- Νοτιοανατολικά / Μυτιλήνη ----------
-  {
-    id: 'agios-ermogenis', lat: 39.0285, lon: 26.5510, facing: 170, exposure: 0.9,
+    id: 'agios-ermogenis', lat: 39.0177, lon: 26.5448, facing: 200, exposure: 0.9,
     name: { el: 'Άγιος Ερμογένης', en: 'Agios Ermogenis' }, area: { el: 'Λουτρά', en: 'Loutra' },
-    surface: 'sand', organized: false, tags: ['snorkel', 'tavern', 'shade'],
+    surface: 'sand', organized: false, tags: ['tavern', 'shade'],
     desc: {
       el: 'Πευκοδάσος ως τη θάλασσα και κρυστάλλινα νερά. Γεμίζει γρήγορα το καλοκαίρι.',
       en: 'Pine forest down to the sea and crystal-clear water. Fills up fast in summer.',
     },
   },
   {
-    id: 'charamida', lat: 39.0310, lon: 26.5290, facing: 190, exposure: 0.9,
+    id: 'charamida', lat: 39.0184, lon: 26.5590, facing: 170, exposure: 0.9,
     name: { el: 'Χαραμίδα', en: 'Charamida' }, area: { el: 'Λουτρά', en: 'Loutra' },
-    surface: 'pebbles', organized: true, tags: ['shade', 'tavern'],
+    surface: 'pebbles', organized: true, tags: ['shade'],
     desc: {
-      el: 'Μεγάλη βοτσαλωτή παραλία με δέντρα και πάρκινγκ — πιο ήσυχη εναλλακτική του Αγίου Ερμογένη.',
-      en: 'Large pebbly beach with trees and parking — a quieter alternative to Agios Ermogenis.',
+      el: 'Βοτσαλωτή οργανωμένη παραλία με δέντρα και πάρκινγκ — πιο ήσυχη εναλλακτική του Αγίου Ερμογένη.',
+      en: 'Organised pebbly beach with trees and parking — a quieter alternative to Agios Ermogenis.',
+    },
+  },
+  // ---------- Κόλπος Γέρας ----------
+  {
+    id: 'tampakariou', lat: 39.0477, lon: 26.5018, facing: 260, exposure: 0.3,
+    name: { el: 'Ταμπακαριού – Σουρλάγκα', en: 'Tampakariou – Sourlagka' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία μέσα στον κλειστό κόλπο της Γέρας — συνήθως ήρεμα νερά.',
+      en: 'Beach inside the enclosed Gulf of Gera — usually calm water.',
     },
   },
   {
-    id: 'airport', lat: 39.0600, lon: 26.6000, facing: 90, exposure: 0.9,
-    name: { el: 'Παραλία Αεροδρομίου', en: 'Airport Beach' }, area: { el: 'Κράτηγος', en: 'Kratigos' },
-    surface: 'sand', organized: false, tags: ['quiet'],
+    id: 'chalatses', lat: 39.0516, lon: 26.4958, facing: 260, exposure: 0.3,
+    name: { el: 'Χαλάτσες', en: 'Chalatses' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Βολική για βουτιά αμέσως μετά την πτήση. Δες τα αεροπλάνα να προσγειώνονται.',
-      en: 'Handy for a swim right after your flight. Watch the planes land.',
+      el: 'Παραλία μέσα στον κλειστό κόλπο της Γέρας — συνήθως ήρεμα νερά.',
+      en: 'Beach inside the enclosed Gulf of Gera — usually calm water.',
     },
   },
   {
-    id: 'tsamakia', lat: 39.0960, lon: 26.5640, facing: 120, exposure: 0.8,
-    name: { el: 'Τσαμάκια (Μυτιλήνη)', en: 'Tsamakia (Mytilene)' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
-    surface: 'sand', organized: true, tags: ['family', 'tavern'],
+    id: 'apidias', lat: 39.0559, lon: 26.4931, facing: 260, exposure: 0.3,
+    name: { el: 'Απηδιάς – Λάκκος', en: 'Apidias – Lakkos' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Η παραλία της πόλης, κάτω από το κάστρο της Μυτιλήνης. Οργανωμένη, με είσοδο.',
-      en: 'The town beach below Mytilene castle. Organised, with an entrance fee.',
+      el: 'Παραλία μέσα στον κλειστό κόλπο της Γέρας — συνήθως ήρεμα νερά.',
+      en: 'Beach inside the enclosed Gulf of Gera — usually calm water.',
     },
   },
   {
-    id: 'gera-springs', lat: 39.0430, lon: 26.4800, facing: 200, exposure: 0.3,
-    name: { el: 'Λουτρά Γέρας', en: 'Gera Hot Springs' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
-    surface: 'pebbles', organized: false, tags: ['hotspring', 'quiet'],
+    id: 'evreiaki', lat: 39.0667, lon: 26.4697, facing: 190, exposure: 0.3,
+    name: { el: 'Εβραίικη', en: 'Evreiaki' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
+    surface: null, organized: null, tags: [],
     desc: {
-      el: 'Θερμές πηγές στον κλειστό κόλπο της Γέρας — σχεδόν πάντα ήρεμα νερά.',
-      en: 'Hot springs in the enclosed Gulf of Gera — almost always calm water.',
+      el: 'Παραλία μέσα στον κλειστό κόλπο της Γέρας — συνήθως ήρεμα νερά.',
+      en: 'Beach inside the enclosed Gulf of Gera — usually calm water.',
     },
   },
   {
-    id: 'skala-mistegnon', lat: 39.2180, lon: 26.4990, facing: 90, exposure: 0.9,
+    id: 'therma', lat: 39.1195, lon: 26.4861, facing: 180, exposure: 0.3,
+    name: { el: 'Θέρμα', en: 'Therma' }, area: { el: 'Κόλπος Γέρας', en: 'Gulf of Gera' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στο βόρειο άκρο του κόλπου της Γέρας.',
+      en: 'Beach at the northern end of the Gulf of Gera.',
+    },
+  },
+  // ---------- Μυτιλήνη και ανατολική ακτή ----------
+  {
+    id: 'kratigos', lat: 39.0452, lon: 26.6122, facing: 120, exposure: 1,
+    name: { el: 'Κράτηγος', en: 'Kratigos' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στη νοτιοανατολική άκρη του νησιού, νότια του αεροδρομίου.',
+      en: 'Beach at the south-eastern tip of the island, south of the airport.',
+    },
+  },
+  {
+    id: 'airport', lat: 39.0569, lon: 26.6022, facing: 90, exposure: 0.9,
+    name: { el: 'Αεροδρόμιο Μυτιλήνης', en: 'Mytilene Airport' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: 'sand', organized: false, tags: [],
+    desc: {
+      el: 'Βολική για βουτιά αμέσως μετά την πτήση.',
+      en: 'Handy for a swim right after your flight.',
+    },
+  },
+  {
+    id: 'neapoli', lat: 39.0696, lon: 26.5939, facing: 100, exposure: 0.9,
+    name: { el: 'Νεάπολη', en: 'Neapoli' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία νότια της Μυτιλήνης, στην ανατολική ακτή.',
+      en: 'Beach south of Mytilene on the east coast.',
+    },
+  },
+  {
+    id: 'vigla', lat: 39.0792, lon: 26.5798, facing: 110, exposure: 0.9,
+    name: { el: 'Ξενία – Βίγλα', en: 'Xenia – Vigla' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στα νότια της πόλης της Μυτιλήνης.',
+      en: 'Beach on the southern edge of Mytilene town.',
+    },
+  },
+  {
+    id: 'tsamakia', lat: 39.1086, lon: 26.5653, facing: 90, exposure: 0.8,
+    name: { el: 'Τσαμάκια', en: 'Tsamakia' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: 'sand', organized: true, tags: ['family'],
+    desc: {
+      el: 'Η οργανωμένη παραλία της πόλης της Μυτιλήνης, με είσοδο.',
+      en: 'The organised town beach of Mytilene, with an entrance fee.',
+    },
+  },
+  {
+    id: 'kalamari', lat: 39.1182, lon: 26.5512, facing: 60, exposure: 0.9,
+    name: { el: 'Καλαμάρι', en: 'Kalamari' }, area: { el: 'Μυτιλήνη', en: 'Mytilene' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία βόρεια της πόλης της Μυτιλήνης.',
+      en: 'Beach north of Mytilene town.',
+    },
+  },
+  {
+    id: 'kanoni-thermis', lat: 39.1744, lon: 26.5079, facing: 80, exposure: 0.9,
+    name: { el: 'Κανόνι Θερμής', en: 'Kanoni Thermis' }, area: { el: 'Θερμή', en: 'Thermi' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στη Θερμή, στην ανατολική ακτή.',
+      en: 'Beach at Thermi on the east coast.',
+    },
+  },
+  {
+    id: 'agios-georgios', lat: 39.1939, lon: 26.4905, facing: 80, exposure: 0.9,
+    name: { el: 'Άγιος Γεώργιος', en: 'Agios Georgios' }, area: { el: 'Ανατολική ακτή', en: 'East coast' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στην ανατολική ακτή, βόρεια της Θερμής.',
+      en: 'Beach on the east coast, north of Thermi.',
+    },
+  },
+  {
+    id: 'petalidi', lat: 39.2049, lon: 26.4853, facing: 80, exposure: 0.9,
+    name: { el: 'Ακτή Πεταλίδι', en: 'Akti Petalidi' }, area: { el: 'Ανατολική ακτή', en: 'East coast' },
+    surface: null, organized: null, tags: [],
+    desc: {
+      el: 'Παραλία στην ανατολική ακτή, νότια της Σκάλας Μιστεγνών.',
+      en: 'Beach on the east coast, south of Skala Mistegnon.',
+    },
+  },
+  {
+    id: 'skala-mistegnon', lat: 39.2127, lon: 26.4758, facing: 70, exposure: 0.9,
     name: { el: 'Σκάλα Μιστεγνών', en: 'Skala Mistegnon' }, area: { el: 'Μιστεγνά', en: 'Mistegna' },
     surface: 'mixed', organized: false, tags: ['tavern', 'quiet'],
     desc: {
-      el: 'Ήσυχο ψαροχώρι με πολλές ταβέρνες πάνω στη θάλασσα. Προστατεύεται από τους δυτικούς ανέμους.',
-      en: 'Quiet fishing village with plenty of seafront tavernas. Sheltered from westerly winds.',
+      el: 'Ήσυχο ψαροχώρι με αρκετές ταβέρνες πάνω στη θάλασσα.',
+      en: 'Quiet fishing village with several seafront tavernas.',
+    },
+  },
+  {
+    id: 'nees-kydonies', lat: 39.2328, lon: 26.4550, facing: 60, exposure: 0.9,
+    name: { el: 'Βοτσαλάκια Σκάλας Νέων Κυδωνιών', en: 'Votsalakia, Skala Neon Kydonion' }, area: { el: 'Νέες Κυδωνίες', en: 'Nees Kydonies' },
+    surface: 'pebbles', organized: true, tags: ['tavern'],
+    desc: {
+      el: 'Βοτσαλωτή παραλία σε ψαροχώρι με ταβέρνες για φρέσκο ψάρι.',
+      en: 'Pebbly beach in a fishing village with tavernas serving fresh fish.',
     },
   },
 ];
