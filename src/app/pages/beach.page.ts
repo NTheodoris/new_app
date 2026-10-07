@@ -6,14 +6,13 @@ import { AppState } from '../services/app-state.service';
 import { LEVEL_COLORS, compass, seaCondition } from '../services/sea';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
 import { TimePickerComponent } from '../components/time-picker.component';
-import { PhotoGalleryComponent } from '../components/photo-gallery.component';
 
 @Component({
   selector: 'app-beach',
   standalone: true,
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonButton, IonIcon, IonChip,
-    BeachSummaryComponent, TimePickerComponent, PhotoGalleryComponent,
+    BeachSummaryComponent, TimePickerComponent,
   ],
   template: `
     @if (view(); as v) {
@@ -32,8 +31,6 @@ import { PhotoGalleryComponent } from '../components/photo-gallery.component';
       </ion-header>
 
       <ion-content class="ion-padding">
-        <app-photo-gallery [beach]="v.beach" />
-        <div class="gap"></div>
         <app-beach-summary [view]="v" [showDetails]="false" />
 
         <div class="compass-row">
@@ -92,7 +89,6 @@ import { PhotoGalleryComponent } from '../components/photo-gallery.component';
     }
   `,
   styles: [`
-    .gap { height: 12px; }
     .compass-row { display: flex; gap: 16px; align-items: center; margin: 16px 0 8px; }
     .compass { width: 130px; height: 130px; flex: none; }
     .ring { fill: none; stroke: var(--ion-color-light-shade); stroke-width: 1.5; }

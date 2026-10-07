@@ -84,9 +84,6 @@ export function parseBeaches(json: unknown): Beach[] {
       organized: typeof r.organized === 'boolean' ? r.organized : null,
       tags: Array.isArray(r.tags) ? (r.tags.filter((t: unknown) => typeof t === 'string') as Tag[]) : [],
       desc: text(r.desc, ''),
-      photos: Array.isArray(r.photos)
-        ? r.photos.filter((p: unknown) => typeof p === 'string' && p.trim()).map((p: string) => p.trim())
-        : undefined,
     });
   }
   return out;

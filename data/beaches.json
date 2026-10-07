@@ -8,7 +8,6 @@
     "surface: sand | pebbles | mixed | null (άγνωστο). organized: true | false | null (άγνωστο).",
     "tags: family, quiet, nudist, hotspring, snorkel, tavern, surf, shade, sunset, birds, watersports.",
     "active: false για να κρυφτεί μια παραλία χωρίς να σβηστεί.",
-    "photos (προαιρετικό): λίστα αρχείων του Wikimedia Commons, π.χ. [\"File:Petra Lesbos beach.jpg\"]. Αν λείπει, η εφαρμογή βρίσκει μόνη της φωτογραφίες κοντά στην παραλία.",
     "Συντεταγμένες: EEA Bathing Water Directive. Περιγραφές: lesvos.com."
   ],
   "beaches": [

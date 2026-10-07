@@ -22,19 +22,6 @@ export interface Beach {
   organized: boolean | null;
   tags: Tag[];
   desc: Text;
-  /** Προαιρετικά: συγκεκριμένα αρχεία του Wikimedia Commons, π.χ. "File:Petra beach.jpg". */
-  photos?: string[];
-}
-
-/** Φωτογραφία με ελεύθερη άδεια και τα στοιχεία αναφοράς της. */
-export interface Photo {
-  title: string;      // όνομα αρχείου στο Commons
-  thumb: string;      // URL μικρογραφίας (~800px)
-  page: string;       // σελίδα του αρχείου στο Commons (εκεί είναι όλα τα στοιχεία)
-  author: string;     // δημιουργός
-  license: string;    // π.χ. "CC BY-SA 4.0"
-  licenseUrl: string | null;
-  description: string;
 }
 
 /** 0 = ήρεμα, 1 = λίγος κυματισμός, 2 = κύμα, 3 = μεγάλο κύμα */
