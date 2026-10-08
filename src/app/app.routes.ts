@@ -11,6 +11,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'map', pathMatch: 'full' },
     ],
   },
+  { path: 'admin', data: { noPreload: true }, loadComponent: () => import('./admin/admin.page').then((m) => m.AdminPage) },
   { path: 'beach/:id', loadComponent: () => import('./pages/beach.page').then((m) => m.BeachPage) },
   { path: '', redirectTo: 'tabs/map', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs/map' },

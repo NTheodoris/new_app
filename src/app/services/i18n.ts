@@ -70,7 +70,8 @@ const DICT = {
   language: { el: 'English', en: 'Ελληνικά' },
   src_bundled: { el: 'Παραλίες: ενσωματωμένα δεδομένα', en: 'Beaches: built-in data' },
   src_cache: { el: 'Παραλίες: αποθηκευμένα στη συσκευή', en: 'Beaches: saved on device' },
-  src_remote: { el: 'Παραλίες: ζωντανά από το GitHub ✓', en: 'Beaches: live from GitHub ✓' },
+  src_firebase: { el: 'Παραλίες: ζωντανά από το backend (Firebase) ✓', en: 'Beaches: live from the backend (Firebase) ✓' },
+  src_github: { el: 'Παραλίες: από το GitHub', en: 'Beaches: from GitHub' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type DictKey = keyof typeof DICT;

@@ -91,9 +91,9 @@ export class AppState {
     const weatherDone = this.loadWeather();
     const remote = await this.repo.remote();
     if (remote) {
-      const changed = locationKey(remote) !== locationKey(this.beaches());
-      this.beaches.set(remote);
-      this.beachSource.set('remote');
+      const changed = locationKey(remote.list) !== locationKey(this.beaches());
+      this.beaches.set(remote.list);
+      this.beachSource.set(remote.source);
       // Αν άλλαξαν παραλίες ή θέσεις, ξαναζητάμε καιρό για τις καινούριες.
       if (changed) {
         await weatherDone;

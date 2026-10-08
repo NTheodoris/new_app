@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// Κανόνες ασφαλείας του Firestore για την εφαρμογή «Λέσβος · Παραλίες».
+// Αντέγραψέ τους στο Firebase Console → Firestore Database → Rules → Publish.
+//
+// ⚠️ Πριν το Publish, άλλαξε το ΤΟ_EMAIL_ΣΟΥ@gmail.com παρακάτω στο Gmail με το οποίο
+//    θα μπαίνεις στη σελίδα διαχείρισης. Μπορείς να βάλεις και περισσότερα, χωρισμένα με κόμμα.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['ΤΟ_EMAIL_ΣΟΥ@gmail.com'];
+    }
+
+    function validBeach() {
+      let d = request.resource.data;
+      return d.name.el is string && d.name.el.size() > 0
+        && d.lat is number && d.lat > 38.8 && d.lat < 39.6
+        && d.lon is number && d.lon > 25.7 && d.lon < 26.8
+        && d.facing is number && d.facing >= 0 && d.facing < 360
+        && d.exposure is number && d.exposure >= 0 && d.exposure <= 1;
+    }
+
+    // Παραλίες: τις διαβάζουν όλοι, τις αλλάζει μόνο ο διαχειριστής.
+    match /beaches/{beachId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && validBeach();
+      allow delete: if isAdmin();
+    }
+
+    // Αριθμός έκδοσης: η εφαρμογή τον ελέγχει για να ξέρει αν άλλαξε κάτι.
+    match /meta/beaches {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Όλα τα υπόλοιπα: κλειστά.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
