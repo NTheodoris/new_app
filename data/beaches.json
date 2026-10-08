@@ -730,13 +730,13 @@
     },
     {
       "id": "evreiaki",
-      "lat": 39.0667,
-      "lon": 26.4697,
-      "facing": 190,
+      "lat": 39.06682,
+      "lon": 26.47114,
+      "facing": 85,
       "exposure": 0.3,
       "name": {
-        "el": "Εβραίικη",
-        "en": "Evreiaki"
+        "el": "Ευρειακή",
+        "en": "Evriaki"
       },
       "area": {
         "el": "Κόλπος Γέρας",
