@@ -118,11 +118,14 @@ export class MapPage implements OnDestroy {
   private meLayer = L.layerGroup();
 
   constructor() {
-    effect(() => this.drawMarkers(this.state.views()));
+    effect(() => this.drawMarkers(this.state.views(), this.card()?.beach.id ?? null));
     effect(() => {
       this.card();
       this.state.lang();
-      setTimeout(() => this.updateSheetHeight(), 0);
+      setTimeout(() => {
+        this.updateSheetHeight();
+        if (this.selectedId()) this.keepSelectedVisible();
+      }, 0);
     });
     effect(() => {
       const p = this.state.position();
@@ -144,7 +147,7 @@ export class MapPage implements OnDestroy {
       this.layer.addTo(this.map);
       this.meLayer.addTo(this.map);
       this.map.on('click', () => this.selectedId.set(null));
-      this.drawMarkers(this.state.views());
+      this.drawMarkers(this.state.views(), this.card()?.beach.id ?? null);
     }
     setTimeout(() => {
       this.map?.invalidateSize();
@@ -168,6 +171,22 @@ export class MapPage implements OnDestroy {
     return h;
   }
 
+  /** Αν η επιλεγμένη παραλία κρύβεται κάτω από την κάρτα (ή στις άκρες), μετακινεί λίγο τον χάρτη. */
+  private keepSelectedVisible() {
+    const v = this.card();
+    if (!this.map || !v) return;
+    const size = this.map.getSize();
+    const sheetH = this.sheetEl?.nativeElement.offsetHeight ?? 0;
+    const pt = this.map.latLngToContainerPoint([v.beach.lat, v.beach.lon]);
+    const top = 80, bottom = size.y - sheetH - 40, side = 30;
+    let dx = 0, dy = 0;
+    if (pt.y > bottom) dy = pt.y - bottom;
+    else if (pt.y < top) dy = pt.y - top;
+    if (pt.x < side) dx = pt.x - side;
+    else if (pt.x > size.x - side) dx = pt.x - (size.x - side);
+    if (dx || dy) this.map.panBy([dx, dy], { animate: true });
+  }
+
   async locate() {
     await this.state.locate(true);
     const p = this.state.position();
@@ -178,20 +197,23 @@ export class MapPage implements OnDestroy {
     this.router.navigate(['/beach', id]);
   }
 
-  private drawMarkers(views: BeachView[]) {
+  private drawMarkers(views: BeachView[], selected: string | null) {
     if (!this.map) return;
     this.layer.clearLayers();
     const best = this.state.bestPick()?.beach.id;
     for (const v of views) {
+      const isSel = v.beach.id === selected;
       const fill = v.sea ? `var(--lv${v.sea.level})` : '#7a8794';
-      const inner = v.sea ? waveGlyph(v.sea.level, 16) : '';
+      const size = isSel ? 40 : 28;
+      const inner = v.sea ? waveGlyph(v.sea.level, isSel ? 22 : 16) : '';
+      const cls = 'pin' + (isSel ? ' sel' : v.beach.id === best ? ' best' : '');
       const icon = L.divIcon({
         className: 'beach-marker',
-        html: `<div class="pin${v.beach.id === best ? ' best' : ''}" style="background:${fill}">${inner}</div>${v.favorite ? '<span class="fav">★</span>' : ''}`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        html: `<div class="${cls}" style="background:${fill}">${inner}</div>${v.favorite ? '<span class="fav">★</span>' : ''}`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
       });
-      L.marker([v.beach.lat, v.beach.lon], { icon, title: v.beach.name[this.state.lang()] })
+      L.marker([v.beach.lat, v.beach.lon], { icon, title: v.beach.name[this.state.lang()], zIndexOffset: isSel ? 1000 : 0 })
         .on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           this.selectedId.set(v.beach.id);

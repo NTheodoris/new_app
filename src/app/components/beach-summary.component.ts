@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
 import { DictKey } from '../services/i18n';
-import { compassWord, windWord } from '../services/sea';
+import { compass, compassWord, windWord } from '../services/sea';
 import { WaterlineComponent } from './waterline.component';
 
 /** Σύνοψη παραλίας: όνομα, η απόφαση «κάνει για μπάνιο;» με τη γραμμή του νερού, και τα βασικά του καιρού. */
@@ -24,7 +24,7 @@ import { WaterlineComponent } from './waterline.component';
     @if (v.sea && v.weather; as w) {
       @let l = v.sea.level;
       <section class="verdict" [style.background]="'var(--lv' + l + '-tint)'">
-        <app-waterline class="line" [level]="l" [width]="320" [height]="22" />
+        <app-waterline class="line" [level]="l" [width]="320" [height]="compact() ? 12 : 22" />
         <div class="vrow">
           <strong class="vtitle" [style.color]="'var(--lv' + l + '-ink)'">{{ state.t(levelKey(v)) }}</strong>
           @if (v.sea.coastWave >= 0.2) {
@@ -35,7 +35,7 @@ import { WaterlineComponent } from './waterline.component';
         @if (!compact()) { <p class="why">{{ state.t(whyKey(v)) }}</p> }
       </section>
 
-      @if (v.sea.offshoreWarning) {
+      @if (v.sea.offshoreWarning && !compact()) {
         <p class="warn">{{ state.t('offshoreWarning') }}</p>
       }
       @if (alt(); as a) {
@@ -46,6 +46,13 @@ import { WaterlineComponent } from './waterline.component';
         </button>
       }
 
+      @if (compact()) {
+        <p class="factline">
+          <span>{{ state.t(windKey(v)) }} <b>{{ w.windSpeed.toFixed(0) }} km/h</b>@if (w.windSpeed >= 6) { {{ compassShort(w.windDir) }}}</span>
+          @if (w.seaTemp != null) { <span>{{ state.t('seaTemp') }} <b>{{ w.seaTemp.toFixed(0) }}°</b></span> }
+          @if (w.temp != null) { <span>{{ state.t('airTemp') }} <b>{{ w.temp.toFixed(0) }}°</b></span> }
+        </p>
+      } @else {
       <dl class="facts">
         <div>
           <dt>{{ state.t(windKey(v)) }}</dt>
@@ -59,6 +66,7 @@ import { WaterlineComponent } from './waterline.component';
           <div><dt>{{ state.t('airTemp') }}</dt><dd>{{ w.temp.toFixed(0) }}°</dd></div>
         }
       </dl>
+      }
     }
 
     <div class="actions">
@@ -72,14 +80,19 @@ import { WaterlineComponent } from './waterline.component';
   `,
   styles: [`
     :host { display: block; }
-    :host(.compact) .name { font-size: 20px; }
-    :host(.compact) .verdict { margin-top: 10px; padding: 8px 12px 10px; }
-    :host(.compact) .line { height: 16px; margin: 0 0 4px; }
-    :host(.compact) .vtitle { font-size: 19px; }
-    :host(.compact) .advice { font-size: 14px; }
-    :host(.compact) .facts { margin-top: 10px; }
-    :host(.compact) .facts dd:not(.sub) { font-size: 17px; }
+    :host(.compact) .name { font-size: 19px; padding-right: 40px; }
+    :host(.compact) .area { font-size: 13px; margin-top: 0; }
+    :host(.compact) .verdict { margin-top: 8px; padding: 6px 12px 8px; border-radius: 14px; }
+    :host(.compact) .line { height: 10px; margin: 0 0 4px; }
+    :host(.compact) .vtitle { font-size: 17px; }
+    :host(.compact) .wave { font-size: 13px; }
+    :host(.compact) .advice { font-size: 13.5px; margin-top: 2px; }
+    :host(.compact) .warn { margin-top: 8px; padding: 7px 10px; font-size: 12.5px; }
+    :host(.compact) .alt { margin-top: 8px; padding: 8px 12px; font-size: 13.5px; }
     :host(.compact) .actions { margin-top: 10px; }
+    :host(.compact) .actions ion-button { height: 38px; font-size: 14px; }
+    .factline { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: 13px; color: var(--lg-muted); }
+    .factline b { color: var(--lg-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
     .kicker { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; color: #8a5a00; margin-bottom: 4px; }
     .sun { width: 10px; height: 10px; border-radius: 50%; background: var(--lg-sun); box-shadow: 0 0 0 3px rgba(255,181,46,.25); }
     .name { margin: 0; font-size: 22px; font-weight: 750; letter-spacing: -0.015em; line-height: 1.15; color: var(--lg-ink); }
@@ -154,6 +167,10 @@ export class BeachSummaryComponent {
 
   compass(deg: number) {
     return compassWord(deg, this.state.lang());
+  }
+
+  compassShort(deg: number) {
+    return compass(deg, this.state.lang());
   }
 
   num(x: number) {

@@ -82,6 +82,13 @@ ion-tab-button { font-size: 12px; }
 }
 .beach-marker .pin svg { display: block; }
 .beach-marker .pin.best { box-shadow: 0 0 0 3px var(--lg-sun), 0 2px 8px rgba(10, 53, 80, .4); }
+/* Επιλεγμένη παραλία: μεγαλύτερη, με σκούρο δαχτυλίδι, πάνω από τις άλλες */
+.beach-marker .pin.sel {
+  width: 40px; height: 40px; border-width: 3px;
+  box-shadow: 0 0 0 3px var(--lg-ink), 0 4px 12px rgba(10, 53, 80, .45);
+  animation: lg-pop .22s ease-out;
+}
+@keyframes lg-pop { from { transform: scale(.7); } to { transform: scale(1); } }
 .beach-marker .fav {
   position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%;
   background: var(--lg-sun); color: #fff; font-size: 9px; line-height: 14px; text-align: center;
