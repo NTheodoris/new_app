@@ -184,7 +184,20 @@ const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
                     @if (saving()) { <ion-spinner name="dots" /> } @else { Αποθήκευση }
                   </ion-button>
                   <ion-button fill="outline" (click)="close()">Ακύρωση</ion-button>
+                  @if (!isNew()) {
+                    <ion-button fill="clear" color="danger" class="del" (click)="confirmDelete.set(true)" [disabled]="saving()">Διαγραφή</ion-button>
+                  }
                 </div>
+                @if (confirmDelete()) {
+                  <div class="box warn confirm">
+                    <p><b>Να σβηστεί οριστικά η παραλία «{{ e.name.el }}»;</b><br />
+                      Δεν γίνεται αναίρεση. Αν θες απλώς να μη φαίνεται, βγάλε το τικ «Εμφανίζεται στην εφαρμογή».</p>
+                    <ion-button color="danger" (click)="remove()" [disabled]="saving()">
+                      @if (saving()) { <ion-spinner name="dots" /> } @else { Ναι, διαγραφή }
+                    </ion-button>
+                    <ion-button fill="outline" (click)="confirmDelete.set(false)">Όχι</ion-button>
+                  </div>
+                }
               </div>
             </div>
           }
@@ -197,6 +210,8 @@ const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
     .box { background: var(--ion-color-light); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
     .box.warn { background: #fdecea; color: #7a1c1c; }
     .box.ok { background: #e7f6ec; color: #145a32; }
+    .del { margin-left: auto; }
+    .confirm p { margin: 0 0 10px; }
     .who { color: var(--ion-color-medium); font-size: 14px; }
     .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
     .bar ion-searchbar { flex: 1; min-width: 220px; padding: 0; }
@@ -245,6 +260,7 @@ export class AdminPage implements OnDestroy {
   loading = signal(false);
   saving = signal(false);
   message = signal<{ kind: 'ok' | 'error' | 'info'; text: string } | null>(null);
+  confirmDelete = signal(false);
   beaches = signal<BeachDoc[]>([]);
   edit = signal<BeachDoc | null>(null);
   isNew = signal(false);
@@ -327,18 +343,41 @@ export class AdminPage implements OnDestroy {
   open(b: BeachDoc) {
     this.message.set(null);
     this.isNew.set(false);
+    this.confirmDelete.set(false);
     this.edit.set(structuredClone(b));
   }
 
   newBeach() {
     this.message.set(null);
     this.isNew.set(true);
+    this.confirmDelete.set(false);
     const maxOrder = Math.max(0, ...this.beaches().map((b) => b.order));
     this.edit.set(normalize({ id: '', lat: 39.2, lon: 26.25, facing: 180, exposure: 1, active: true, order: maxOrder + 10 }));
   }
 
   close() {
     this.edit.set(null);
+    this.confirmDelete.set(false);
+  }
+
+  /** Οριστική διαγραφή (μετά από επιβεβαίωση). Αλλάζει και την έκδοση, για να ενημερωθούν τα κινητά. */
+  async remove() {
+    const e = this.edit();
+    if (!e || this.isNew()) return;
+    this.saving.set(true);
+    try {
+      const batch = writeBatch(this.db!);
+      batch.delete(doc(this.db!, BEACHES_COLLECTION, e.id));
+      batch.set(doc(this.db!, META_DOC), { version: Date.now() });
+      await batch.commit();
+      this.message.set({ kind: 'ok', text: `Διαγράφηκε: ${e.name.el}. Η εφαρμογή δεν θα τη δείχνει από το επόμενο άνοιγμα.` });
+      this.close();
+      await this.load();
+    } catch (err) {
+      this.fail('Η διαγραφή απέτυχε', err);
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   async save() {
