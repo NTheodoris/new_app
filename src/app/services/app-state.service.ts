@@ -9,6 +9,10 @@ import { DictKey, translate } from './i18n';
 const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 const MARINE = 'https://marine-api.open-meteo.com/v1/marine';
 const DAYS = 3;
+/** Αν η εφαρμογή ξαναγίνει ορατή μετά από τόσο χρόνο, ξαναφορτώνεται ο καιρός. */
+const REFRESH_AFTER_MS = 30 * 60 * 1000;
+/** Μετά από τόσα λεπτά στο παρασκήνιο, ο καιρός ξαναφορτώνεται όταν ξαναβλέπουμε την εφαρμογή. */
+const STALE_MIN = 30;
 
 export interface BeachView {
   beach: Beach;
@@ -37,6 +41,9 @@ export class AppState {
   /** Επιλεγμένη ώρα (δείκτης στον πίνακα ωρών). */
   readonly hourIndex = signal(0);
   readonly nowIndex = signal(0);
+  private weatherLoadedAt = 0;
+  private lastLoaded = 0;
+  private resumeHooked = false;
 
   readonly views = computed<BeachView[]>(() => {
     const data = this.hourly();
@@ -78,7 +85,39 @@ export class AppState {
     else if (!navigator.language?.startsWith('el')) this.lang.set('en');
     if (favs.value) this.favorites.set(new Set(JSON.parse(favs.value)));
     this.locate(false);
+    this.hookResume();
     await this.loadBeaches();
+  }
+
+  /** Όταν ο χρήστης γυρίζει στην εφαρμογή (ξεκλείδωμα, άλλη καρτέλα, άλλη εφαρμογή), ανανεώνουμε αν χρειάζεται. */
+  private hookResume() {
+    if (this.resumeHooked) return;
+    this.resumeHooked = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') this.refreshIfStale();
+    });
+    window.addEventListener('pageshow', () => this.refreshIfStale());
+  }
+
+  async refreshIfStale() {
+    if (this.loading() || !this.lastLoaded) return;
+    const ageMin = (Date.now() - this.lastLoaded) / 60000;
+    if (ageMin >= STALE_MIN) {
+      await this.loadBeaches();
+    } else {
+      this.advanceClock();
+    }
+  }
+
+  /** Χωρίς νέα λήψη: αν πέρασε η ώρα, μετακινούμε το «τώρα» στη σωστή ώρα της πρόγνωσης. */
+  private advanceClock() {
+    const times = this.times();
+    if (!times.length) return;
+    const now = currentHourIndex(times);
+    if (now !== this.nowIndex()) {
+      if (this.hourIndex() === this.nowIndex()) this.hourIndex.set(now);
+      this.nowIndex.set(now);
+    }
   }
 
   /** Φορτώνει παραλίες: πρώτα από τη συσκευή (γρήγορα), μετά από τη βάση (πιο φρέσκα). */
@@ -179,6 +218,12 @@ export class AppState {
     }
   }
 
+  /** Ξαναφορτώνει τον καιρό αν έχει περάσει πάνω από μισή ώρα από την τελευταία φορά. */
+  refreshWeatherIfStale() {
+    if (this.loading() || !this.weatherLoadedAt) return;
+    if (Date.now() - this.weatherLoadedAt > REFRESH_AFTER_MS) this.loadWeather();
+  }
+
   async loadWeather() {
     const beaches = this.beaches();
     if (!beaches.length) return;
@@ -225,6 +270,8 @@ export class AppState {
       const now = currentHourIndex(first.map((d) => d.time));
       this.nowIndex.set(now);
       this.hourIndex.set(now);
+      this.weatherLoadedAt = Date.now();
+      this.lastLoaded = Date.now();
     } catch (e) {
       console.error('weather', e);
       this.error.set(true);
