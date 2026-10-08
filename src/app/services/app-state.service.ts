@@ -67,6 +67,8 @@ export class AppState {
     const list = this.views().filter((v) => v.sea);
     if (!list.length) return null;
     return [...list].sort((a, b) => {
+      // πρώτα η απόφαση (ιδανική > καλή > …), μετά πόσο ήρεμα είναι
+      if (a.sea!.level !== b.sea!.level) return a.sea!.level - b.sea!.level;
       const s = a.sea!.index - b.sea!.index;
       if (Math.abs(s) > 3) return s;
       if (a.distanceKm != null && b.distanceKm != null) return a.distanceKm - b.distanceKm;

@@ -36,9 +36,10 @@ const DICT = {
   why_onshore: { el: 'Ο αέρας φυσάει προς την παραλία.', en: 'The wind blows onto the beach.' },
   why_offshore: { el: 'Ο αέρας φυσάει από τη στεριά, γι\'αυτό τα νερά μένουν ήρεμα.', en: 'The wind blows from land, so the water stays calm.' },
   why_light: { el: 'Δεν φτάνει δυνατός αέρας ή κύμα εδώ.', en: 'No strong wind or waves reach here.' },
+  noResults: { el: 'Καμία παραλία με αυτά τα φίλτρα. Βγάλε κάποιο φίλτρο ή άλλαξε την αναζήτηση.', en: 'No beaches match these filters. Remove a filter or change your search.' },
   goInstead: { el: 'Πιο ήρεμη κοντά', en: 'Calmer nearby' },
   bestTime: { el: 'Καλύτερη ώρα για μπάνιο', en: 'Best time for a swim' },
-  sameAllDay: { el: 'ίδια εικόνα όλη μέρα', en: 'same all day' },
+  sameAllDay: { el: 'Όλη τη μέρα', en: 'All day' },
   hoursAhead: { el: 'Τις επόμενες ώρες', en: 'Next hours' },
   offshoreWarning: {
     el: '⚠️ Δυνατός αέρας από τη στεριά: όχι φουσκωτά, στρώματα ή κανό — σε παρασύρει στα ανοιχτά.',

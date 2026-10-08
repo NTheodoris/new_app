@@ -3,75 +3,115 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
 import { DictKey } from '../services/i18n';
-import { LEVEL_COLORS, compassWord, windWord } from '../services/sea';
+import { compassWord, windWord } from '../services/sea';
+import { WaterlineComponent } from './waterline.component';
 
-/** Σύνοψη παραλίας: όνομα και μια απλή απόφαση «κάνει για μπάνιο ή όχι». */
+/** Σύνοψη παραλίας: όνομα, η απόφαση «κάνει για μπάνιο;» με τη γραμμή του νερού, και τα βασικά του καιρού. */
 @Component({
   selector: 'app-beach-summary',
   standalone: true,
-  imports: [IonButton, IonIcon],
+  host: { '[class.compact]': 'compact()' },
+  imports: [IonButton, IonIcon, WaterlineComponent],
   template: `
     @let v = view();
     @let lang = state.lang();
-    <div class="head">
-      <div class="names">
-        <div class="name">@if (v.favorite) {<span class="star">★</span>} {{ v.beach.name[lang] }}</div>
-        <div class="area">{{ v.beach.area[lang] }}
-          @if (v.distanceKm != null) { · {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }} }
-        </div>
-      </div>
-      @if (v.sea) {
-        <span class="badge" [style.background]="colors[v.sea.level]">{{ state.t(levelKey(v)) }}</span>
-      }
-    </div>
+    @if (kicker()) { <div class="kicker"><span class="sun"></span>{{ kicker() }}</div> }
+    @if (showName()) {
+      <h2 class="name">{{ v.beach.name[lang] }}@if (v.favorite) {<span class="star" aria-label="★"> ★</span>}</h2>
+      <div class="area">{{ v.beach.area[lang] }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</div>
+    }
 
     @if (v.sea && v.weather; as w) {
-      <div class="advice">{{ state.t(adviceKey(v)) }}</div>
-      <div class="why">{{ state.t(whyKey(v)) }}</div>
+      @let l = v.sea.level;
+      <section class="verdict" [style.background]="'var(--lv' + l + '-tint)'">
+        <app-waterline class="line" [level]="l" [width]="320" [height]="22" />
+        <div class="vrow">
+          <strong class="vtitle" [style.color]="'var(--lv' + l + '-ink)'">{{ state.t(levelKey(v)) }}</strong>
+          @if (v.sea.coastWave >= 0.2) {
+            <span class="wave" [style.color]="'var(--lv' + l + '-ink)'">{{ state.t('waveShort') }} ~{{ num(v.sea.coastWave) }} m</span>
+          }
+        </div>
+        <p class="advice">{{ state.t(adviceKey(v)) }}</p>
+        @if (!compact()) { <p class="why">{{ state.t(whyKey(v)) }}</p> }
+      </section>
+
       @if (v.sea.offshoreWarning) {
-        <div class="warn">{{ state.t('offshoreWarning') }}</div>
+        <p class="warn">{{ state.t('offshoreWarning') }}</p>
       }
       @if (alt(); as a) {
         <button class="alt" (click)="go(a.view.beach.id)">
-          👉 {{ state.t('goInstead') }}: <b>{{ a.view.beach.name[lang] }}</b> · {{ a.km.toFixed(0) }} {{ state.t('km') }}
+          <span>{{ state.t('goInstead') }}:</span>
+          <strong>{{ a.view.beach.name[lang] }}</strong>
+          <span class="km">{{ a.km.toFixed(0) }} {{ state.t('km') }}</span>
         </button>
       }
-      <div class="windline">
-        💨 <b>{{ state.t(windKey(v)) }}</b> · {{ w.windSpeed.toFixed(0) }} km/h
-        @if (w.windSpeed >= 6) { {{ state.t('from') }} {{ compass(w.windDir) }} }
-        @if (v.sea.coastWave >= 0.2) { · 🌊 {{ state.t('waveShort') }} ~{{ v.sea.coastWave.toFixed(1) }} m }
-      </div>
-      <div class="temps">
-        @if (v.weather.temp != null) { ☀️ {{ state.t('airTemp') }} {{ v.weather.temp.toFixed(0) }}° }
-        @if (v.weather.seaTemp != null) { · 🌊 {{ state.t('seaTemp') }} {{ v.weather.seaTemp.toFixed(0) }}° }
-      </div>
+
+      <dl class="facts">
+        <div>
+          <dt>{{ state.t(windKey(v)) }}</dt>
+          <dd>{{ w.windSpeed.toFixed(0) }} <small>km/h</small></dd>
+          @if (w.windSpeed >= 6) { <dd class="sub">{{ state.t('from') }} {{ compass(w.windDir) }}</dd> }
+        </div>
+        @if (w.seaTemp != null) {
+          <div><dt>{{ state.t('seaTemp') }}</dt><dd>{{ w.seaTemp.toFixed(0) }}°</dd></div>
+        }
+        @if (w.temp != null) {
+          <div><dt>{{ state.t('airTemp') }}</dt><dd>{{ w.temp.toFixed(0) }}°</dd></div>
+        }
+      </dl>
     }
 
     <div class="actions">
       @if (showDetails()) {
-        <ion-button size="small" (click)="open.emit()">{{ state.t('details') }}</ion-button>
+        <ion-button (click)="open.emit()">{{ state.t('details') }}</ion-button>
       }
-      <ion-button size="small" fill="outline" [href]="mapsUrl(v)" target="_blank">
+      <ion-button fill="outline" [href]="mapsUrl(v)" target="_blank">
         <ion-icon name="navigate" slot="start" /> {{ state.t('navigate') }}
       </ion-button>
     </div>
   `,
   styles: [`
-    .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .name { font-size: 17px; font-weight: 700; }
-    .star { color: #f5a623; }
-    .area { font-size: 13px; color: var(--ion-color-medium); }
-    .badge { color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-    .advice { margin-top: 8px; font-size: 15px; font-weight: 600; }
-    .why { font-size: 12px; color: var(--ion-color-medium); margin-top: 2px; }
-    .warn { margin-top: 6px; font-size: 12px; background: #fff4e5; color: #8a4b00; padding: 6px 8px; border-radius: 8px; }
+    :host { display: block; }
+    :host(.compact) .name { font-size: 20px; }
+    :host(.compact) .verdict { margin-top: 10px; padding: 8px 12px 10px; }
+    :host(.compact) .line { height: 16px; margin: 0 0 4px; }
+    :host(.compact) .vtitle { font-size: 19px; }
+    :host(.compact) .advice { font-size: 14px; }
+    :host(.compact) .facts { margin-top: 10px; }
+    :host(.compact) .facts dd:not(.sub) { font-size: 17px; }
+    :host(.compact) .actions { margin-top: 10px; }
+    .kicker { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; color: #8a5a00; margin-bottom: 4px; }
+    .sun { width: 10px; height: 10px; border-radius: 50%; background: var(--lg-sun); box-shadow: 0 0 0 3px rgba(255,181,46,.25); }
+    .name { margin: 0; font-size: 22px; font-weight: 750; letter-spacing: -0.015em; line-height: 1.15; color: var(--lg-ink); }
+    .star { color: var(--lg-sun); }
+    .area { font-size: 14px; color: var(--lg-muted); margin-top: 2px; }
+
+    .verdict { margin-top: 12px; border-radius: 18px; padding: 12px 14px 12px; }
+    .line { height: 22px; margin: 2px 0 8px; }
+    .vrow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .vtitle { font-size: 21px; font-weight: 780; letter-spacing: -0.01em; }
+    .wave { font-size: 14px; font-weight: 650; white-space: nowrap; }
+    .advice { margin: 4px 0 0; font-size: 15px; font-weight: 520; color: var(--lg-ink); line-height: 1.35; }
+    .why { margin: 3px 0 0; font-size: 13px; color: var(--lg-muted); line-height: 1.35; }
+
+    .warn { margin: 10px 0 0; font-size: 13px; line-height: 1.4; background: #fff1df; color: #7a4300; padding: 9px 12px; border-radius: 12px; }
     .alt {
-      display: block; width: 100%; text-align: left; margin-top: 8px; font: inherit; font-size: 13px;
-      background: #e8f6ee; color: #135c37; border: 0; border-radius: 8px; padding: 8px 10px; cursor: pointer;
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; width: 100%; text-align: left;
+      margin-top: 10px; font: inherit; font-size: 14px; color: var(--lv0-ink);
+      background: var(--lg-surface); border: 1.5px solid var(--lv0); border-radius: 14px; padding: 10px 12px;
     }
-    .windline { margin-top: 8px; font-size: 13px; }
-    .temps { margin-top: 4px; font-size: 13px; color: var(--ion-color-medium); }
-    .actions { display: flex; gap: 6px; margin-top: 8px; }
+    .alt strong { font-weight: 750; }
+    .alt .km { margin-left: auto; color: var(--lg-muted); font-size: 13px; }
+    .alt:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
+
+    .facts { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; margin: 14px 0 0; }
+    .facts dt { font-size: 12px; color: var(--lg-muted); }
+    .facts dd { margin: 1px 0 0; font-size: 19px; font-weight: 720; color: var(--lg-ink); font-variant-numeric: tabular-nums; }
+    .facts dd small { font-size: 12px; font-weight: 600; color: var(--lg-muted); }
+    .facts dd.sub { font-size: 12px; font-weight: 500; color: var(--lg-muted); }
+
+    .actions { display: flex; gap: 8px; margin-top: 14px; }
+    .actions ion-button { flex: 1; margin: 0; height: 44px; font-size: 15px; }
   `],
 })
 export class BeachSummaryComponent {
@@ -79,8 +119,12 @@ export class BeachSummaryComponent {
   private router = inject(Router);
   view = input.required<BeachView>();
   showDetails = input(true);
+  showName = input(true);
+  /** Μικρή γραμμή πάνω από το όνομα, π.χ. «Πρόταση για τώρα». */
+  kicker = input<string | null>(null);
+  /** Πιο μικρή εκδοχή (για την κάρτα πάνω στον χάρτη). */
+  compact = input(false);
   @Output() open = new EventEmitter<void>();
-  colors = LEVEL_COLORS;
 
   alt = computed(() => this.state.calmAlternative(this.view().beach.id));
 
@@ -110,6 +154,11 @@ export class BeachSummaryComponent {
 
   compass(deg: number) {
     return compassWord(deg, this.state.lang());
+  }
+
+  num(x: number) {
+    const s = x.toFixed(1);
+    return this.state.lang() === 'el' ? s.replace('.', ',') : s;
   }
 
   go(id: string) {

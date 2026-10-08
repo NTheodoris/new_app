@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
-import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-} from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
+import { AppHeaderComponent } from '../components/app-header.component';
 import { AppState } from '../services/app-state.service';
 
 interface Tip { icon: string; title: { el: string; en: string }; body: { el: string; en: string } }
@@ -9,31 +8,34 @@ interface Tip { icon: string; title: { el: string; en: string }; body: { el: str
 @Component({
   selector: 'app-tips',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
+  imports: [IonContent, AppHeaderComponent],
   template: `
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>{{ state.t('tabTips') }}</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="state.toggleLang()">{{ state.t('language') }}</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-      @for (tip of tips; track tip.icon) {
-        <ion-card>
-          <ion-card-header><ion-card-title>{{ tip.icon }} {{ tip.title[state.lang()] }}</ion-card-title></ion-card-header>
-          <ion-card-content>{{ tip.body[state.lang()] }}</ion-card-content>
-        </ion-card>
-      }
-
-
+    <app-header [title]="state.t('tabTips')" />
+    <ion-content>
+      <ul class="tips">
+        @for (tip of tips; track tip.icon) {
+          <li>
+            <span class="ic" aria-hidden="true">{{ tip.icon }}</span>
+            <div>
+              <h2>{{ tip.title[state.lang()] }}</h2>
+              <p>{{ tip.body[state.lang()] }}</p>
+            </div>
+          </li>
+        }
+      </ul>
       <p class="note">{{ state.t('dataNote') }}</p>
-      <p class="note">{{ state.t($any('src_' + state.beachSource())) }} · {{ state.beaches().length }}</p>
+      <p class="note">{{ state.t($any('src_' + state.beachSource())) }} ({{ state.beaches().length }})</p>
     </ion-content>
   `,
   styles: [`
-    .note { font-size: 11px; color: var(--ion-color-medium); }
+    .tips { list-style: none; margin: 8px 12px 0; padding: 4px 16px; background: var(--lg-surface); border-radius: 22px; }
+    li { display: flex; gap: 14px; padding: 16px 0; }
+    li + li { border-top: 1px solid var(--lg-line); }
+    .ic { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--lg-foam); display: grid; place-items: center; font-size: 20px; }
+    h2 { margin: 0 0 4px; font-size: 17px; font-weight: 720; color: var(--lg-ink); letter-spacing: -0.01em; }
+    p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--lg-ink); max-width: 62ch; }
+    .note { font-size: 12px; color: var(--lg-muted); margin: 14px 16px 0; }
+    .note:last-child { margin-bottom: 24px; }
   `],
 })
 export class TipsPage {

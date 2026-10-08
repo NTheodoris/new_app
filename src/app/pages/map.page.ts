@@ -1,48 +1,43 @@
 import { Component, ElementRef, OnDestroy, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonFab, IonFabButton, IonSpinner,
-} from '@ionic/angular/standalone';
+import { IonToolbar, IonContent, IonIcon, IonFab, IonFabButton, IonSpinner } from '@ionic/angular/standalone';
+import { DomSanitizer } from '@angular/platform-browser';
 import * as L from 'leaflet';
 import { AppState, BeachView } from '../services/app-state.service';
-import { LEVEL_COLORS } from '../services/sea';
+import { waveGlyph } from '../services/waterline';
+import { SeaLevel } from '../models';
 import { TimePickerComponent } from '../components/time-picker.component';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
+import { AppHeaderComponent } from '../components/app-header.component';
 
 @Component({
   selector: 'app-map',
   standalone: true,
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonFab, IonFabButton, IonSpinner,
-    TimePickerComponent, BeachSummaryComponent,
+    IonToolbar, IonContent, IonIcon, IonFab, IonFabButton, IonSpinner,
+    TimePickerComponent, BeachSummaryComponent, AppHeaderComponent,
   ],
   template: `
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>{{ state.t('appTitle') }}</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="state.toggleLang()">{{ state.t('language') }}</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
+    <app-header>
       <ion-toolbar><app-time-picker /></ion-toolbar>
-    </ion-header>
+    </app-header>
 
     <ion-content [scrollY]="false">
       <div #map class="map"></div>
 
-      <div class="legend">
+      <div class="legend" aria-hidden="true">
         @for (l of levels; track l) {
-          <span><i [style.background]="colors[l]"></i>{{ state.t($any('legend' + l)) }}</span>
+          <span class="lg"><i [style.background]="'var(--lv' + l + ')'" [innerHTML]="glyph(l)"></i>{{ state.t($any('legend' + l)) }}</span>
         }
       </div>
 
       @if (state.loading()) {
-        <div class="overlay"><ion-spinner /> {{ state.t('loading') }}</div>
+        <div class="status"><ion-spinner name="crescent" /> {{ state.t('loading') }}</div>
       }
       @if (state.error()) {
-        <div class="overlay error">
-          {{ state.t('offline') }}
-          <ion-button size="small" (click)="state.loadWeather()">{{ state.t('retry') }}</ion-button>
+        <div class="status error">
+          <span>{{ state.t('offline') }}</span>
+          <button (click)="state.loadWeather()">{{ state.t('retry') }}</button>
         </div>
       }
 
@@ -53,14 +48,12 @@ import { BeachSummaryComponent } from '../components/beach-summary.component';
       </ion-fab>
 
       @if (card(); as v) {
-        <div class="card">
-          @if (!selectedId()) {
-            <div class="pick">⭐ {{ state.t('bestNow') }} · {{ state.t('bestNowSub') }}
-              @if (v.distanceKm != null) { {{ state.t('near') }} }</div>
-          } @else {
+        <div class="sheet" #sheet>
+          <div class="grab" aria-hidden="true"></div>
+          @if (selectedId()) {
             <button class="close" (click)="selectedId.set(null)" aria-label="close">✕</button>
           }
-          <app-beach-summary [view]="v" (open)="openBeach(v.beach.id)" />
+          <app-beach-summary [view]="v" [compact]="true" [kicker]="selectedId() ? null : kicker(v)" (open)="openBeach(v.beach.id)" />
         </div>
       }
     </ion-content>
@@ -68,34 +61,50 @@ import { BeachSummaryComponent } from '../components/beach-summary.component';
   styles: [`
     .map { position: absolute; inset: 0; }
     .legend {
-      position: absolute; top: 8px; left: 8px; z-index: 500; background: rgba(255,255,255,.92);
-      border-radius: 10px; padding: 6px 8px; font-size: 11px; display: grid; gap: 2px; color: #222;
-      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      position: absolute; top: 34px; left: 10px; right: 10px; z-index: 500; display: flex; gap: 12px; flex-wrap: wrap;
+      width: fit-content; background: rgba(255,255,255,.94); border-radius: 999px; padding: 6px 12px;
+      font-size: 12px; font-weight: 600; color: var(--lg-ink); box-shadow: 0 1px 6px rgba(10,53,80,.18);
     }
-    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-    .overlay {
-      position: absolute; top: 8px; right: 8px; z-index: 600; background: #fff; color: #222; padding: 8px 12px;
-      border-radius: 10px; display: flex; gap: 8px; align-items: center; max-width: 70%; font-size: 13px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    .lg { display: inline-flex; align-items: center; gap: 5px; }
+    .lg i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; }
+    .status {
+      position: absolute; top: 52px; left: 10px; z-index: 600; background: var(--lg-surface); color: var(--lg-ink);
+      padding: 8px 12px; border-radius: 14px; display: flex; gap: 8px; align-items: center; max-width: calc(100% - 20px);
+      font-size: 14px; box-shadow: 0 1px 6px rgba(10,53,80,.18);
     }
-    .overlay.error { flex-direction: column; align-items: flex-start; }
-    .card {
-      position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 700;
-      background: var(--ion-background-color, #fff); border-radius: 16px; padding: 12px 14px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.25);
+    .status ion-spinner { width: 18px; height: 18px; color: var(--lg-sea); }
+    .status.error { flex-direction: column; align-items: flex-start; }
+    .status button {
+      font: inherit; font-weight: 700; color: #fff; background: var(--lg-sea); border: 0; border-radius: 10px; padding: 6px 14px;
     }
-    .pick { font-size: 12px; font-weight: 600; color: var(--ion-color-primary); margin-bottom: 4px; }
-    .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 18px; color: var(--ion-color-medium); }
-    ion-fab.raised { bottom: 190px; }
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 700; max-height: 62%; overflow-y: auto;
+      background: var(--lg-surface); border-radius: 24px 24px 0 0; padding: 8px 16px 16px;
+      box-shadow: 0 -6px 24px rgba(10,53,80,.18);
+    }
+    .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--lg-line); margin: 0 auto 10px; }
+    .close {
+      position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+      background: var(--lg-foam); border: 0; font-size: 15px; color: var(--lg-muted);
+    }
+    ion-fab-button { --box-shadow: 0 2px 8px rgba(10,53,80,.25); --color: var(--lg-sea); }
+    ion-fab.raised { bottom: calc(var(--sheet-h, 0px) + 10px); }
   `],
 })
 export class MapPage implements OnDestroy {
   state = inject(AppState);
   private router = inject(Router);
   @ViewChild('map', { static: true }) mapEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('sheet') sheetEl?: ElementRef<HTMLDivElement>;
+  private fitted = false;
 
   levels = [0, 1, 2, 3] as const;
-  colors = LEVEL_COLORS;
+  private sanitizer = inject(DomSanitizer);
+  glyph = (l: SeaLevel) => this.sanitizer.bypassSecurityTrustHtml(waveGlyph(l, 12));
+
+  kicker(v: BeachView) {
+    return this.state.t('bestNowSub') + (v.distanceKm != null ? ' ' + this.state.t('near') : '');
+  }
   selectedId = signal<string | null>(null);
 
   card = computed<BeachView | null>(() => {
@@ -111,6 +120,11 @@ export class MapPage implements OnDestroy {
   constructor() {
     effect(() => this.drawMarkers(this.state.views()));
     effect(() => {
+      this.card();
+      this.state.lang();
+      setTimeout(() => this.updateSheetHeight(), 0);
+    });
+    effect(() => {
       const p = this.state.position();
       this.meLayer.clearLayers();
       if (p) L.circleMarker([p.lat, p.lon], { radius: 7, color: '#fff', weight: 3, fillColor: '#1e6fff', fillOpacity: 1 }).addTo(this.meLayer);
@@ -119,18 +133,39 @@ export class MapPage implements OnDestroy {
 
   ionViewDidEnter() {
     if (!this.map) {
-      this.map = L.map(this.mapEl.nativeElement, { zoomControl: false, attributionControl: true })
+      this.map = L.map(this.mapEl.nativeElement, { zoomControl: false, attributionControl: false })
         .setView([39.17, 26.25], 9);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '© OpenStreetMap',
       }).addTo(this.map);
+      // Η αναφορά στο OpenStreetMap πάνω δεξιά, για να μην την κρύβει η κάρτα.
+      L.control.attribution({ position: 'topright', prefix: false }).addTo(this.map);
       this.layer.addTo(this.map);
       this.meLayer.addTo(this.map);
       this.map.on('click', () => this.selectedId.set(null));
       this.drawMarkers(this.state.views());
     }
-    setTimeout(() => this.map?.invalidateSize(), 50);
+    setTimeout(() => {
+      this.map?.invalidateSize();
+      this.fitIsland();
+    }, 80);
+  }
+
+  /** Δείχνει όλο το νησί στο κομμάτι του χάρτη που δεν κρύβει η κάρτα. */
+  private fitIsland() {
+    if (!this.map) return;
+    const sheetH = this.updateSheetHeight();
+    if (this.fitted) return;
+    this.fitted = true;
+    this.map.fitBounds([[38.96, 25.84], [39.40, 26.62]], { paddingTopLeft: [16, 56], paddingBottomRight: [16, sheetH + 12] });
+  }
+
+  /** Το κουμπί «η θέση μου» μένει πάντα πάνω από την κάρτα. */
+  private updateSheetHeight() {
+    const h = this.sheetEl?.nativeElement.offsetHeight ?? 0;
+    this.mapEl.nativeElement.parentElement?.style.setProperty('--sheet-h', h + 'px');
+    return h;
   }
 
   async locate() {
@@ -146,13 +181,15 @@ export class MapPage implements OnDestroy {
   private drawMarkers(views: BeachView[]) {
     if (!this.map) return;
     this.layer.clearLayers();
+    const best = this.state.bestPick()?.beach.id;
     for (const v of views) {
-      const color = v.sea ? LEVEL_COLORS[v.sea.level] : '#7a8794';
+      const fill = v.sea ? `var(--lv${v.sea.level})` : '#7a8794';
+      const inner = v.sea ? waveGlyph(v.sea.level, 16) : '';
       const icon = L.divIcon({
         className: 'beach-marker',
-        html: `<div class="dot" style="background:${color}">${v.favorite ? '★' : ''}</div>`,
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
+        html: `<div class="pin${v.beach.id === best ? ' best' : ''}" style="background:${fill}">${inner}</div>${v.favorite ? '<span class="fav">★</span>' : ''}`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
       });
       L.marker([v.beach.lat, v.beach.lon], { icon, title: v.beach.name[this.state.lang()] })
         .on('click', (e) => {

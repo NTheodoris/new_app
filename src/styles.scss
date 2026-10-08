@@ -1,3 +1,4 @@
+@import '@fontsource-variable/commissioner';
 @import '@ionic/angular/css/core.css';
 @import '@ionic/angular/css/normalize.css';
 @import '@ionic/angular/css/structure.css';
@@ -6,19 +7,84 @@
 @import '@ionic/angular/css/flex-utils.css';
 @import '@ionic/angular/css/display.css';
 
+/*
+ * LesvosGo — θέμα
+ * Χρώματα από το εικονίδιο: βαθύ μπλε του Αιγαίου, τιρκουάζ λιμνοθάλασσας, χρυσός ήλιος.
+ * Το φόντο είναι αφρός θάλασσας (όχι λευκό), ώστε οι λευκές επιφάνειες να ξεχωρίζουν.
+ * Το «σήμα» της εφαρμογής είναι η γραμμή του νερού: ίσια όταν είναι ήρεμα, κυματιστή όταν έχει κύμα.
+ */
 :root {
-  --ion-color-primary: #0b6e99;
-  --ion-color-primary-rgb: 11, 110, 153;
+  --lg-ink: #0a3550;       /* κείμενο, τίτλοι */
+  --lg-muted: #5b7385;     /* δευτερεύον κείμενο */
+  --lg-sea: #016aa9;       /* κύριο χρώμα */
+  --lg-lagoon: #1fb5cf;    /* δευτερεύον */
+  --lg-sun: #ffb52e;       /* «πρόταση», αγαπημένα */
+  --lg-foam: #edf5f7;      /* φόντο */
+  --lg-surface: #ffffff;   /* επιφάνειες */
+  --lg-line: #d6e6ec;      /* διαχωριστικά */
+
+  /* Επίπεδα θάλασσας: γέμισμα και σκούρα έκδοση για κείμενο (καλή αντίθεση σε λευκό) */
+  --lv0: #0e9f7e; --lv0-ink: #07725b; --lv0-tint: #e2f5ef;
+  --lv1: #d9a404; --lv1-ink: #7f6000; --lv1-tint: #fbf3d9;
+  --lv2: #ea6f1f; --lv2-ink: #a9480c; --lv2-tint: #fde9dc;
+  --lv3: #d63a3a; --lv3-ink: #a62424; --lv3-tint: #fbe2e2;
+
+  --ion-font-family: 'Commissioner Variable', system-ui, sans-serif;
+  --ion-background-color: var(--lg-foam);
+  --ion-background-color-rgb: 237, 245, 247;
+  --ion-text-color: var(--lg-ink);
+  --ion-text-color-rgb: 10, 53, 80;
+  --ion-toolbar-background: var(--lg-foam);
+  --ion-toolbar-color: var(--lg-ink);
+  --ion-toolbar-border-color: transparent;
+  --ion-tab-bar-background: var(--lg-surface);
+  --ion-tab-bar-color: var(--lg-muted);
+  --ion-tab-bar-color-selected: var(--lg-sea);
+  --ion-tab-bar-border-color: var(--lg-line);
+  --ion-item-background: var(--lg-surface);
+  --ion-border-color: var(--lg-line);
+
+  --ion-color-primary: #016aa9;
+  --ion-color-primary-rgb: 1, 106, 169;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #0a6187;
-  --ion-color-primary-tint: #2381a3;
+  --ion-color-primary-shade: #015d95;
+  --ion-color-primary-tint: #1a79b2;
+  --ion-color-medium: #5b7385;
+  --ion-color-medium-rgb: 91, 115, 133;
+  --ion-color-light: #e3eff3;
+  --ion-color-light-rgb: 227, 239, 243;
+  --ion-color-light-shade: #c8d8de;
+  --ion-color-light-tint: #edf5f7;
 }
+
+body { font-feature-settings: 'tnum' 0; -webkit-font-smoothing: antialiased; }
+
+/* Τα κουμπιά δεν είναι κεφαλαία: διαβάζονται πιο εύκολα, ειδικά στα ελληνικά */
+ion-button, ion-segment-button, ion-tab-button {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+ion-button { --border-radius: 12px; --box-shadow: none; }
+ion-toolbar { --border-width: 0 !important; }
+.header-md { box-shadow: none; }
+.header-md::after { display: none; }
+ion-tab-bar { --border: 1px solid var(--lg-line); height: 58px; }
+ion-tab-button { font-size: 12px; }
 
 /* Δείκτες παραλιών στον χάρτη */
 /* Το Leaflet δίνει ήδη position:absolute στο .leaflet-marker-icon — δεν το αλλάζουμε. */
-.beach-marker .dot {
-  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
-  color: #fff; font-size: 12px; line-height: 18px; text-align: center; font-weight: 700;
+.beach-marker .pin {
+  width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(10, 53, 80, .35);
+  display: grid; place-items: center;
 }
+.beach-marker .pin svg { display: block; }
+.beach-marker .pin.best { box-shadow: 0 0 0 3px var(--lg-sun), 0 2px 8px rgba(10, 53, 80, .4); }
+.beach-marker .fav {
+  position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--lg-sun); color: #fff; font-size: 9px; line-height: 14px; text-align: center;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+.leaflet-container { font-family: var(--ion-font-family); background: #cfe6ee; }

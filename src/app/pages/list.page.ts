@@ -1,12 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, IonList, IonItem, IonLabel, IonChip,
-  IonSegment, IonSegmentButton, IonButtons, IonButton, IonNote,
-} from '@ionic/angular/standalone';
+import { IonToolbar, IonContent, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
-import { LEVEL_COLORS } from '../services/sea';
 import { TimePickerComponent } from '../components/time-picker.component';
+import { AppHeaderComponent } from '../components/app-header.component';
+import { WaterlineComponent } from '../components/waterline.component';
 import { DictKey } from '../services/i18n';
 
 type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'hotspring' | 'nudist' | 'tavern';
@@ -15,67 +13,98 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
   selector: 'app-list',
   standalone: true,
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, IonList, IonItem, IonLabel, IonChip,
-    IonSegment, IonSegmentButton, IonButtons, IonButton, IonNote, RouterLink, TimePickerComponent,
+    IonToolbar, IonContent, IonIcon, RouterLink, TimePickerComponent, AppHeaderComponent, WaterlineComponent,
   ],
   template: `
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>{{ state.t('tabList') }}</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="state.toggleLang()">{{ state.t('language') }}</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
+    <app-header [title]="state.t('tabList')">
       <ion-toolbar><app-time-picker /></ion-toolbar>
-    </ion-header>
+    </app-header>
     <ion-content>
-      <ion-searchbar [placeholder]="state.t('search')" (ionInput)="query.set($any($event.detail.value) ?? '')" />
-
-      <ion-segment [value]="sort()" (ionChange)="setSort($any($event.detail.value))">
-        <ion-segment-button value="calm">{{ state.t('calmFirst') }}</ion-segment-button>
-        <ion-segment-button value="near">{{ state.t('nearestFirst') }}</ion-segment-button>
-      </ion-segment>
-
-      <div class="chips">
-        @for (f of filterList; track f.key) {
-          <ion-chip [outline]="!filters().has(f.key)" color="primary" (click)="toggle(f.key)">
-            {{ f.icon }} {{ state.t(f.label) }}
-          </ion-chip>
-        }
+      <div class="tools">
+        <label class="search">
+          <ion-icon name="search" aria-hidden="true" />
+          <input type="search" [placeholder]="state.t('search')" [value]="query()" (input)="query.set($any($event.target).value)" />
+        </label>
+        <div class="sort" role="tablist">
+          <button role="tab" [class.on]="sort() === 'calm'" [attr.aria-selected]="sort() === 'calm'" (click)="setSort('calm')">{{ state.t('calmFirst') }}</button>
+          <button role="tab" [class.on]="sort() === 'near'" [attr.aria-selected]="sort() === 'near'" (click)="setSort('near')">{{ state.t('nearestFirst') }}</button>
+        </div>
+        <div class="chips">
+          @for (f of filterList; track f.key) {
+            <button class="chip" [class.on]="filters().has(f.key)" [attr.aria-pressed]="filters().has(f.key)" (click)="toggle(f.key)">
+              {{ f.icon }} {{ state.t(f.label) }}
+            </button>
+          }
+        </div>
       </div>
 
-      <ion-list>
+      <ul class="rows">
         @for (v of items(); track v.beach.id) {
-          <ion-item [routerLink]="['/beach', v.beach.id]" detail>
-            <span class="dot" slot="start" [style.background]="v.sea ? colors[v.sea.level] : '#7a8794'"></span>
-            <ion-label>
-              <h2>@if (v.favorite) {<span class="star">★ </span>}{{ v.beach.name[state.lang()] }}</h2>
-              <p>
-                {{ v.beach.area[state.lang()] }}
-                @if (v.distanceKm != null) { · {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }} }
-              </p>
+          <li>
+            <a class="row" [routerLink]="['/beach', v.beach.id]">
+              <span class="tile" [style.background]="v.sea ? 'var(--lv' + v.sea.level + '-tint)' : 'var(--lg-foam)'">
+                @if (v.sea) { <app-waterline [level]="v.sea.level" [width]="28" [height]="18" [waves]="2" [stroke]="2.6" /> }
+              </span>
+              <span class="txt">
+                <span class="nm">{{ v.beach.name[state.lang()] }}@if (v.favorite) {<span class="star"> ★</span>}</span>
+                <span class="ar">{{ v.beach.area[state.lang()] }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</span>
+              </span>
               @if (v.sea && v.weather) {
-                <p class="cond">{{ state.t($any('level' + v.sea.level)) }} · 💨 {{ v.weather.windSpeed.toFixed(0) }} km/h</p>
+                <span class="right">
+                  <span class="vd" [style.color]="'var(--lv' + v.sea.level + '-ink)'">{{ state.t($any('legend' + v.sea.level)) }}</span>
+                  <span class="wd">{{ v.weather.windSpeed.toFixed(0) }} km/h</span>
+                </span>
               }
-            </ion-label>
-          </ion-item>
+            </a>
+          </li>
         } @empty {
-          <ion-item><ion-note>—</ion-note></ion-item>
+          <li class="empty">{{ state.t('noResults') }}</li>
         }
-      </ion-list>
+      </ul>
     </ion-content>
   `,
   styles: [`
-    .chips { padding: 4px 8px; display: flex; flex-wrap: wrap; }
-    .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,.15); }
-    .star { color: #f5a623; }
-    .cond { font-weight: 600; color: var(--ion-color-dark) !important; }
-    ion-segment { padding: 0 12px; }
+    .tools { padding: 4px 12px 0; }
+    .search {
+      display: flex; align-items: center; gap: 8px; margin: 4px 4px 10px; padding: 0 14px; height: 46px;
+      background: var(--lg-surface); border: 1px solid var(--lg-line); border-radius: 14px;
+    }
+    .search:focus-within { border-color: var(--lg-sea); box-shadow: 0 0 0 3px rgba(1,106,169,.15); }
+    .search ion-icon { font-size: 19px; color: var(--lg-muted); flex: none; }
+    .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16px; color: var(--lg-ink); }
+    .search input::placeholder { color: var(--lg-muted); }
+    .sort { display: flex; background: var(--ion-color-light); border-radius: 12px; padding: 3px; margin: 0 4px; }
+    .sort button {
+      flex: 1; font: inherit; font-size: 14px; font-weight: 600; color: var(--lg-muted);
+      background: transparent; border: 0; border-radius: 10px; padding: 8px 6px;
+    }
+    .sort button.on { background: var(--lg-surface); color: var(--lg-ink); box-shadow: 0 1px 3px rgba(10,53,80,.15); }
+    .chips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 4px 6px; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--lg-ink); white-space: nowrap;
+      background: var(--lg-surface); border: 1px solid var(--lg-line); border-radius: 999px; padding: 7px 12px;
+    }
+    .chip.on { background: var(--lg-sea); border-color: var(--lg-sea); color: #fff; }
+    button:focus-visible, .row:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
+
+    .rows { list-style: none; margin: 6px 12px 16px; padding: 0; background: var(--lg-surface); border-radius: 18px; overflow: hidden; }
+    .rows li + li .row { border-top: 1px solid var(--lg-line); }
+    .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; color: inherit; text-decoration: none; }
+    .tile { flex: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
+    .tile app-waterline { width: 28px; height: 18px; }
+    .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .nm { font-size: 16px; font-weight: 650; color: var(--lg-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .star { color: var(--lg-sun); }
+    .ar { font-size: 13px; color: var(--lg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .right { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
+    .vd { font-size: 14px; font-weight: 720; }
+    .wd { font-size: 12px; color: var(--lg-muted); font-variant-numeric: tabular-nums; }
+    .empty { padding: 20px; color: var(--lg-muted); text-align: center; }
   `],
 })
 export class ListPage {
   state = inject(AppState);
-  colors = LEVEL_COLORS;
   query = signal('');
   sort = signal<'calm' | 'near'>('calm');
   filters = signal<Set<Filter>>(new Set());
@@ -105,7 +134,8 @@ export class ListPage {
       }
       return true;
     });
-    const byCalm = (a: BeachView, b: BeachView) => (a.sea?.index ?? 99) - (b.sea?.index ?? 99);
+    const calm = (v: BeachView) => (v.sea ? v.sea.level * 1000 + v.sea.index : 9999);
+    const byCalm = (a: BeachView, b: BeachView) => calm(a) - calm(b);
     const byNear = (a: BeachView, b: BeachView) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0);
     list = [...list].sort(this.sort() === 'near' && this.state.position() ? byNear : byCalm);
     return list;
