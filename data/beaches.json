@@ -610,10 +610,10 @@
     },
     {
       "id": "agios-ermogenis",
-      "lat": 39.0177,
-      "lon": 26.5448,
-      "facing": 200,
-      "exposure": 0.9,
+      "lat": 39.01653,
+      "lon": 26.54249,
+      "facing": 140,
+      "exposure": 0.65,
       "name": {
         "el": "Άγιος Ερμογένης",
         "en": "Agios Ermogenis"
