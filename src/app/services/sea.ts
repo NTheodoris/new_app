@@ -77,6 +77,10 @@ export function seaCondition(beach: Beach, w: HourWeather): SeaCondition {
   else if (index >= 18) level = 2;
   else if (index >= 10) level = 1;
 
+  // Δυνατός αέρας από τη στεριά: νερά ήρεμα, αλλά όχι «ιδανικά» (παρασύρει φουσκωτά στα ανοιχτά).
+  const offshoreWarning = onshore < -0.3 && w.windSpeed >= 25;
+  if (offshoreWarning && level === 0) level = 1;
+
   return {
     level,
     onshore,
@@ -84,7 +88,7 @@ export function seaCondition(beach: Beach, w: HourWeather): SeaCondition {
     waveReach: reach,
     coastWave: Math.round((index / WAVE_TO_INDEX) * 10) / 10,
     driver: waveIndex > windIndex * 1.15 && level > 0 ? 'waves' : 'wind',
-    offshoreWarning: onshore < -0.3 && w.windSpeed >= 25,
+    offshoreWarning,
     beaufort: beaufort(w.windSpeed),
   };
 }

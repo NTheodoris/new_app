@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Output, inject, input } from '@angular/core';
+import { Component, EventEmitter, Output, computed, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
-import { LEVEL_COLORS, compass } from '../services/sea';
+import { DictKey } from '../services/i18n';
+import { LEVEL_COLORS } from '../services/sea';
 
-/** Σύνοψη παραλίας: όνομα, κατάσταση θάλασσας, άνεμος. */
+/** Σύνοψη παραλίας: όνομα και μια απλή απόφαση «κάνει για μπάνιο ή όχι». */
 @Component({
   selector: 'app-beach-summary',
   standalone: true,
@@ -19,20 +21,25 @@ import { LEVEL_COLORS, compass } from '../services/sea';
         </div>
       </div>
       @if (v.sea) {
-        <span class="badge" [style.background]="colors[v.sea.level]">{{ state.t($any('level' + v.sea.level)) }}</span>
+        <span class="badge" [style.background]="colors[v.sea.level]">{{ state.t(levelKey(v)) }}</span>
       }
     </div>
 
-    @if (v.weather; as w) {
-      <div class="wind">
-        💨 {{ w.windSpeed.toFixed(0) }} km/h {{ state.t('from') }} {{ dir(w.windDir) }}
-        ({{ v.sea!.beaufort }} {{ state.t('beaufortShort') }}) · {{ state.t('gusts') }} {{ w.gusts.toFixed(0) }}
-        @if (w.seaTemp != null) { · 🌊 {{ w.seaTemp.toFixed(0) }}°C }
-      </div>
-      <div class="why">{{ why(v) }}</div>
-      @if (v.sea!.offshoreWarning) {
+    @if (v.sea && v.weather; as w) {
+      <div class="advice">{{ state.t(adviceKey(v)) }}</div>
+      <div class="why">{{ state.t(whyKey(v)) }}</div>
+      @if (v.sea.offshoreWarning) {
         <div class="warn">{{ state.t('offshoreWarning') }}</div>
       }
+      @if (alt(); as a) {
+        <button class="alt" (click)="go(a.view.beach.id)">
+          👉 {{ state.t('goInstead') }}: <b>{{ a.view.beach.name[lang] }}</b> · {{ a.km.toFixed(0) }} {{ state.t('km') }}
+        </button>
+      }
+      <div class="temps">
+        @if (v.weather.temp != null) { ☀️ {{ state.t('airTemp') }} {{ v.weather.temp.toFixed(0) }}° }
+        @if (v.weather.seaTemp != null) { · 🌊 {{ state.t('seaTemp') }} {{ v.weather.seaTemp.toFixed(0) }}° }
+      </div>
     }
 
     <div class="actions">
@@ -50,32 +57,48 @@ import { LEVEL_COLORS, compass } from '../services/sea';
     .star { color: #f5a623; }
     .area { font-size: 13px; color: var(--ion-color-medium); }
     .badge { color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-    .wind { margin-top: 8px; font-size: 13px; }
+    .advice { margin-top: 8px; font-size: 15px; font-weight: 600; }
     .why { font-size: 12px; color: var(--ion-color-medium); margin-top: 2px; }
     .warn { margin-top: 6px; font-size: 12px; background: #fff4e5; color: #8a4b00; padding: 6px 8px; border-radius: 8px; }
+    .alt {
+      display: block; width: 100%; text-align: left; margin-top: 8px; font: inherit; font-size: 13px;
+      background: #e8f6ee; color: #135c37; border: 0; border-radius: 8px; padding: 8px 10px; cursor: pointer;
+    }
+    .temps { margin-top: 8px; font-size: 13px; color: var(--ion-color-medium); }
     .actions { display: flex; gap: 6px; margin-top: 8px; }
   `],
 })
 export class BeachSummaryComponent {
   state = inject(AppState);
+  private router = inject(Router);
   view = input.required<BeachView>();
   showDetails = input(true);
   @Output() open = new EventEmitter<void>();
   colors = LEVEL_COLORS;
 
-  dir(d: number) {
-    return compass(d, this.state.lang());
+  alt = computed(() => this.state.calmAlternative(this.view().beach.id));
+
+  levelKey(v: BeachView) {
+    return ('level' + v.sea!.level) as DictKey;
   }
 
-  why(v: BeachView) {
-    const sea = v.sea;
-    if (sea?.driver === 'waves') {
-      return (sea.onshore < -0.35 ? this.state.t('swellOffshoreWind') : this.state.t('wavesReach'));
-    }
-    const o = v.sea?.onshore ?? 0;
-    if (o > 0.35) return this.state.t('onshoreWind');
-    if (o < -0.35) return this.state.t('offshoreWind');
-    return this.state.t('sideWind');
+  adviceKey(v: BeachView) {
+    if (v.sea!.offshoreWarning && v.sea!.level <= 1) return 'advice_offshore' as DictKey;
+    return ('advice' + v.sea!.level) as DictKey;
+  }
+
+  /** Μία απλή φράση για το «γιατί». */
+  whyKey(v: BeachView): DictKey {
+    const sea = v.sea!;
+    if (sea.driver === 'waves') return 'why_waves';
+    if (sea.offshoreWarning) return 'why_offshore';
+    if (sea.level >= 1) return 'why_onshore';
+    if (sea.onshore < -0.35 && (v.weather?.windSpeed ?? 0) >= 12) return 'why_offshore';
+    return 'why_light';
+  }
+
+  go(id: string) {
+    this.router.navigate(['/beach', id]);
   }
 
   mapsUrl(v: BeachView) {

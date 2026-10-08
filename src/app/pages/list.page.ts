@@ -5,7 +5,7 @@ import {
   IonSegment, IonSegmentButton, IonButtons, IonButton, IonNote,
 } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
-import { LEVEL_COLORS, compass } from '../services/sea';
+import { LEVEL_COLORS } from '../services/sea';
 import { TimePickerComponent } from '../components/time-picker.component';
 import { DictKey } from '../services/i18n';
 
@@ -55,10 +55,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
                 @if (v.distanceKm != null) { · {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }} }
               </p>
               @if (v.sea && v.weather) {
-                <p class="cond">
-                  {{ state.t($any('level' + v.sea.level)) }} ·
-                  💨 {{ v.weather.windSpeed.toFixed(0) }} km/h {{ dir(v.weather.windDir) }}
-                </p>
+                <p class="cond">{{ state.t($any('level' + v.sea.level)) }}</p>
               }
             </ion-label>
           </ion-item>
@@ -114,9 +111,6 @@ export class ListPage {
     return list;
   });
 
-  dir(d: number) {
-    return compass(d, this.state.lang());
-  }
 
   async setSort(s: 'calm' | 'near') {
     this.sort.set(s);

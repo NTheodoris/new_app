@@ -27,24 +27,12 @@ interface Tip { icon: string; title: { el: string; en: string }; body: { el: str
         </ion-card>
       }
 
-      <ion-card>
-        <ion-card-header><ion-card-title>📏 Beaufort</ion-card-title></ion-card-header>
-        <ion-card-content>
-          <table>
-            @for (b of beaufort; track b.n) {
-              <tr><td><b>{{ b.n }}</b></td><td>{{ b.kmh }} km/h</td><td>{{ b.text[state.lang()] }}</td></tr>
-            }
-          </table>
-        </ion-card-content>
-      </ion-card>
 
       <p class="note">{{ state.t('dataNote') }}</p>
       <p class="note">{{ state.t($any('src_' + state.beachSource())) }} · {{ state.beaches().length }}</p>
     </ion-content>
   `,
   styles: [`
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    td { padding: 4px 6px; border-bottom: 1px solid var(--ion-color-light); }
     .note { font-size: 11px; color: var(--ion-color-medium); }
   `],
 })
@@ -118,14 +106,4 @@ export class TipsPage {
     },
   ];
 
-  beaufort = [
-    { n: 0, kmh: '<1', text: { el: 'Άπνοια', en: 'Calm' } },
-    { n: 1, kmh: '1–5', text: { el: 'Σχεδόν άπνοια', en: 'Light air' } },
-    { n: 2, kmh: '6–11', text: { el: 'Ασθενής', en: 'Light breeze' } },
-    { n: 3, kmh: '12–19', text: { el: 'Λεπτός — μικρά κυματάκια', en: 'Gentle — small wavelets' } },
-    { n: 4, kmh: '20–28', text: { el: 'Μέτριος — αφρισμένα κύματα', en: 'Moderate — whitecaps' } },
-    { n: 5, kmh: '29–38', text: { el: 'Λαμπρός — κύμα, προσοχή', en: 'Fresh — waves, take care' } },
-    { n: 6, kmh: '39–49', text: { el: 'Ισχυρός — όχι μπάνιο σε εκτεθειμένες ακτές', en: 'Strong — avoid exposed beaches' } },
-    { n: 7, kmh: '50+', text: { el: 'Σφοδρός — μείνε στη στεριά', en: 'Near gale — stay ashore' } },
-  ];
 }

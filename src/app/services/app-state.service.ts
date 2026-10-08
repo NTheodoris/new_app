@@ -102,6 +102,53 @@ export class AppState {
     }
   }
 
+  /** Αν η παραλία έχει κύμα, η πιο κοντινή της που είναι ήρεμη (επίπεδο 0–1) την ίδια ώρα. */
+  calmAlternative(beachId: string): { view: BeachView; km: number } | null {
+    const views = this.views();
+    const me = views.find((v) => v.beach.id === beachId);
+    if (!me?.sea || me.sea.level < 2) return null;
+    let best: { view: BeachView; km: number } | null = null;
+    for (const v of views) {
+      if (v.beach.id === beachId || !v.sea || v.sea.level > 1) continue;
+      const km = distanceKm(me.beach.lat, me.beach.lon, v.beach.lat, v.beach.lon);
+      if (!best || km < best.km) best = { view: v, km };
+    }
+    return best;
+  }
+
+  /**
+   * Η καλύτερη ώρα για μπάνιο την ημέρα που έχει επιλεγεί (09:00–20:00, από τώρα και μετά αν είναι σήμερα):
+   * το μεγαλύτερο συνεχόμενο διάστημα με την πιο ήρεμη θάλασσα της ημέρας.
+   */
+  bestTime(beachId: string): { from: string; to: string; level: number; allDay: boolean } | null {
+    const beach = this.beaches().find((b) => b.id === beachId);
+    const all = this.hourlyFor(beachId);
+    const sel = all[this.hourIndex()];
+    if (!beach || !sel) return null;
+    const day = sel.time.slice(0, 10);
+    const now = all[this.nowIndex()]?.time ?? '';
+    const hours = all
+      .filter((h) => h.time.slice(0, 10) === day && h.time >= now.slice(0, 13))
+      .filter((h) => { const hh = +h.time.slice(11, 13); return hh >= 9 && hh < 20; })
+      .map((h) => ({ hh: +h.time.slice(11, 13), level: seaCondition(beach, h).level }));
+    if (!hours.length) return null;
+    const min = Math.min(...hours.map((h) => h.level));
+    let bestStart = 0, bestLen = 0, start = -1;
+    hours.forEach((h, i) => {
+      if (h.level === min) {
+        if (start < 0) start = i;
+        if (i - start + 1 > bestLen) { bestLen = i - start + 1; bestStart = start; }
+      } else start = -1;
+    });
+    const pad = (n: number) => String(n).padStart(2, '0') + ':00';
+    return {
+      from: pad(hours[bestStart].hh),
+      to: pad(hours[bestStart + bestLen - 1].hh + 1),
+      level: min,
+      allDay: bestLen === hours.length,
+    };
+  }
+
   hourlyFor(beachId: string): HourWeather[] {
     return this.hourly().get(beachId) ?? [];
   }

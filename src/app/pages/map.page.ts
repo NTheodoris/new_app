@@ -32,7 +32,7 @@ import { BeachSummaryComponent } from '../components/beach-summary.component';
 
       <div class="legend">
         @for (l of levels; track l) {
-          <span><i [style.background]="colors[l]"></i>{{ state.t($any('level' + l)) }}</span>
+          <span><i [style.background]="colors[l]"></i>{{ state.t($any('legend' + l)) }}</span>
         }
       </div>
 
@@ -148,14 +148,9 @@ export class MapPage implements OnDestroy {
     this.layer.clearLayers();
     for (const v of views) {
       const color = v.sea ? LEVEL_COLORS[v.sea.level] : '#7a8794';
-      // Το βελάκι δείχνει προς τα πού πηγαίνει ο αέρας (αντίθετα από το "από πού φυσάει").
-      // Το ➤ κοιτάει ανατολικά (90°), άρα περιστροφή = (windDir + 180) − 90.
-      const arrow = v.weather
-        ? `<span class="wind-arrow" style="transform:rotate(${(v.weather.windDir + 90) % 360}deg)">➤</span>`
-        : '';
       const icon = L.divIcon({
         className: 'beach-marker',
-        html: `<div class="dot" style="background:${color}">${v.favorite ? '★' : ''}</div>${arrow}`,
+        html: `<div class="dot" style="background:${color}">${v.favorite ? '★' : ''}</div>`,
         iconSize: [26, 26],
         iconAnchor: [13, 13],
       });

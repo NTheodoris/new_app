@@ -3,7 +3,7 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonButton, IonIcon, IonChip,
 } from '@ionic/angular/standalone';
 import { AppState } from '../services/app-state.service';
-import { LEVEL_COLORS, compass, seaCondition } from '../services/sea';
+import { LEVEL_COLORS, seaCondition } from '../services/sea';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
 import { TimePickerComponent } from '../components/time-picker.component';
 
@@ -33,59 +33,20 @@ import { TimePickerComponent } from '../components/time-picker.component';
       <ion-content class="ion-padding">
         <app-beach-summary [view]="v" [showDetails]="false" />
 
-        <div class="compass-row">
-          <svg viewBox="-60 -60 120 120" class="compass" role="img" [attr.aria-label]="state.t('facing')">
-            <circle r="52" class="ring" />
-            @for (c of cardinals; track c.d) {
-              <text [attr.x]="52 * sin(c.d) * 0.82" [attr.y]="-52 * cos(c.d) * 0.82 + 4" text-anchor="middle" class="card">{{ c[lang] }}</text>
-            }
-            <!-- θάλασσα: τομέας προς τον οποίο κοιτάει η παραλία -->
-            <path [attr.d]="seaSector(v.beach.facing)" class="sea" />
-            <!-- άνεμος: βέλος από την κατεύθυνση που φυσάει προς το κέντρο -->
-            <!-- κύμα από τα ανοιχτά: βέλος από την κατεύθυνση που έρχεται -->
-            @if (v.weather?.waveDir != null && v.weather?.waveHeight != null) {
-              <g [attr.transform]="'rotate(' + v.weather!.waveDir + ')'">
-                <line x1="0" y1="-48" x2="0" y2="-8" class="wave" />
-                <path d="M -6 -16 L 0 -6 L 6 -16 Z" class="wave-head" />
-              </g>
-            }
-            @if (v.weather; as w) {
-              <g [attr.transform]="'rotate(' + w.windDir + ')'">
-                <line x1="0" y1="-48" x2="0" y2="-8" class="wind" />
-                <path d="M -6 -16 L 0 -6 L 6 -16 Z" class="wind-head" />
-              </g>
-            }
-            <circle r="5" class="beach" />
-          </svg>
-          <div class="legend">
-            <div><span class="sw sea"></span> {{ state.t('facing') }} <b>{{ dir(v.beach.facing) }}</b></div>
-            @if (v.weather; as w) {
-              <div><span class="sw wind"></span> {{ state.t('wind') }} {{ state.t('from') }} <b>{{ dir(w.windDir) }}</b></div>
-              @if (w.waveHeight != null) {
-                <div><span class="sw wave"></span> {{ state.t('waveOffshore') }}: <b>{{ w.waveHeight.toFixed(1) }} m</b>
-                  @if (w.waveDir != null) { {{ state.t('from') }} <b>{{ dir(w.waveDir) }}</b> }
-                  @if (w.wavePeriod != null) { · {{ state.t('wavePeriod') }} {{ w.wavePeriod.toFixed(0) }} s }
-                </div>
-                @if (v.sea!.waveReach != null) {
-                  <div class="reach">{{ reachText(v.sea!.waveReach!) }}</div>
-                }
-              }
-              @if (v.sea) {
-                <div>🏖️ {{ state.t('waveEstimate') }}: <b>~{{ v.sea.coastWave.toFixed(1) }} m</b></div>
-              }
-              @if (w.temp != null) { <div>🌡️ {{ state.t('airTemp') }}: <b>{{ w.temp.toFixed(0) }}°C</b></div> }
-            }
-          </div>
-        </div>
+        @if (best(); as bt) {
+          @if (bt.level <= 1) {
+            <div class="best">🕐 {{ state.t('bestTime') }}:
+              <b>@if (bt.allDay) { {{ state.t('sameAllDay') }} } @else { {{ bt.from }}–{{ bt.to }} }</b>
+            </div>
+          }
+        }
 
-        <h3 id="hours">{{ state.t('next24') }}</h3>
+        <h3 id="hours">{{ state.t('hoursAhead') }}</h3>
         <div class="hours">
           @for (h of hours(); track h.i) {
             <button class="hour" [class.sel]="h.i === state.hourIndex()" (click)="state.hourIndex.set(h.i)">
               <span class="t">{{ h.label }}</span>
               <span class="bar" [style.background]="colors[h.level]" [style.height.px]="14 + h.level * 12"></span>
-              <span class="w">{{ h.wind }}</span>
-              <span class="d">{{ h.dir }}</span>
             </button>
           }
         </div>
@@ -105,22 +66,7 @@ import { TimePickerComponent } from '../components/time-picker.component';
     }
   `,
   styles: [`
-    .compass-row { display: flex; gap: 16px; align-items: center; margin: 16px 0 8px; }
-    .compass { width: 130px; height: 130px; flex: none; }
-    .ring { fill: none; stroke: var(--ion-color-light-shade); stroke-width: 1.5; }
-    .card { font-size: 10px; fill: var(--ion-color-medium); font-weight: 700; }
-    .sea { fill: rgba(30, 136, 229, .25); stroke: #1e88e5; stroke-width: 1; }
-    .wind { stroke: #455a64; stroke-width: 3; stroke-linecap: round; }
-    .wind-head { fill: #455a64; }
-    .wave { stroke: #00acc1; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1 6; }
-    .wave-head { fill: #00acc1; }
-    .reach { font-size: 12px; color: var(--ion-color-medium); margin-left: 18px; }
-    .beach { fill: #f5c26b; stroke: #a0782b; }
-    .legend { font-size: 13px; display: grid; gap: 4px; }
-    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
-    .sw.sea { background: rgba(30,136,229,.35); border: 1px solid #1e88e5; }
-    .sw.wind { background: #455a64; }
-    .sw.wave { background: #00acc1; }
+    .best { margin: 14px 0 4px; font-size: 14px; background: var(--ion-color-light); padding: 8px 10px; border-radius: 8px; }
     h3 { font-size: 15px; margin: 18px 0 6px; }
     .hours { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; }
     .hour {
@@ -130,8 +76,6 @@ import { TimePickerComponent } from '../components/time-picker.component';
     .hour.sel { border-color: var(--ion-color-primary); background: rgba(0,0,0,.03); }
     .hour .t { font-size: 11px; color: var(--ion-color-medium); }
     .hour .bar { width: 16px; border-radius: 4px; margin-top: auto; }
-    .hour .w { font-size: 12px; font-weight: 700; }
-    .hour .d { font-size: 10px; color: var(--ion-color-medium); }
     .desc { font-size: 15px; line-height: 1.5; }
     .chips { display: flex; flex-wrap: wrap; }
     .note { font-size: 11px; color: var(--ion-color-medium); margin-top: 16px; }
@@ -143,10 +87,6 @@ export class BeachPage {
   id = input.required<string>();
 
   colors = LEVEL_COLORS;
-  cardinals = [
-    { d: 0, el: 'Β', en: 'N' }, { d: 90, el: 'Α', en: 'E' },
-    { d: 180, el: 'Ν', en: 'S' }, { d: 270, el: 'Δ', en: 'W' },
-  ];
 
   view = computed(() => this.state.views().find((v) => v.beach.id === this.id()) ?? null);
 
@@ -159,28 +99,12 @@ export class BeachPage {
       i: start + k,
       label: w.time.slice(11, 13),
       level: seaCondition(v.beach, w).level,
-      wind: Math.round(w.windSpeed),
-      dir: compass(w.windDir, this.state.lang()),
     }));
   });
 
-  sin = (d: number) => Math.sin((d * Math.PI) / 180);
-  cos = (d: number) => Math.cos((d * Math.PI) / 180);
-
-  dir(d: number) {
-    return compass(d, this.state.lang());
-  }
-
-  reachText(r: number) {
-    return this.state.t(r >= 0.7 ? 'wavesReach' : r >= 0.2 ? 'wavesPartial' : 'wavesBlocked');
-  }
-
-  /** Τομέας 120° γύρω από την κατεύθυνση που κοιτάει η παραλία. */
-  seaSector(facing: number) {
-    const r = 44;
-    const a1 = facing - 60, a2 = facing + 60;
-    const p = (a: number) => `${(r * this.sin(a)).toFixed(1)} ${(-r * this.cos(a)).toFixed(1)}`;
-    return `M 0 0 L ${p(a1)} A ${r} ${r} 0 0 1 ${p(a2)} Z`;
-  }
-
+  best = computed(() => {
+    const v = this.view();
+    this.state.hourIndex();
+    return v ? this.state.bestTime(v.beach.id) : null;
+  });
 }
