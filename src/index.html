@@ -11,9 +11,18 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Λέσβος">
   <meta name="description" content="Οι παραλίες της Λέσβου σε χάρτη, με εκτίμηση κύματος ανάλογα με τον αέρα.">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <!-- Οθόνη έναρξης για το web: φαίνεται μέχρι να φορτώσει η εφαρμογή -->
+    <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(#0a5f86,#18a5c6);color:#fff;font-family:system-ui,sans-serif">
+      <img src="icons/icon-192.png" width="120" height="120" alt="" style="border-radius:28px;box-shadow:0 6px 24px rgba(0,0,0,.25)">
+      <div style="font-size:22px;font-weight:700">Λέσβος · Παραλίες</div>
+    </div>
+  </app-root>
 </body>
 </html>

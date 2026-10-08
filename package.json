@@ -9,7 +9,8 @@
     "test": "ng test",
     "android": "ng build && npx cap sync android && npx cap open android",
     "sync": "ng build && npx cap sync android",
-    "deploy:web": "bash deploy-web.sh"
+    "deploy:web": "bash deploy-web.sh",
+    "icons": "node resources-src/render.js && capacitor-assets generate --android --iconBackgroundColor '#0a5f86' --iconBackgroundColorDark '#0a5f86' --splashBackgroundColor '#0a5f86' --splashBackgroundColorDark '#0a5f86'"
   },
   "prettier": {
     "printWidth": 100,
@@ -47,6 +48,7 @@
     "@angular/build": "^20.3.39",
     "@angular/cli": "^20.3.39",
     "@angular/compiler-cli": "^20.3.0",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.6.9",
     "@types/jasmine": "~5.1.0",
     "@types/leaflet": "^1.9.22",
