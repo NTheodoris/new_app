@@ -19,6 +19,28 @@ export function compass(deg: number, lang: 'el' | 'en'): string {
   return (lang === 'el' ? COMPASS_EL : COMPASS_EN)[i];
 }
 
+const WORDS_EL = ['βόρεια', 'βορειοανατολικά', 'ανατολικά', 'νοτιοανατολικά', 'νότια', 'νοτιοδυτικά', 'δυτικά', 'βορειοδυτικά'];
+const WORDS_EN = ['the north', 'the northeast', 'the east', 'the southeast', 'the south', 'the southwest', 'the west', 'the northwest'];
+/** Η κατεύθυνση με λέξεις («βορειοδυτικά», «the northwest»), για να τη διαβάζει εύκολα ο τουρίστας. */
+export function compassWord(deg: number, lang: 'el' | 'en'): string {
+  const i = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
+  return (lang === 'el' ? WORDS_EL : WORDS_EN)[i];
+}
+
+/** Λέξη για την ένταση του ανέμου, με βάση τα μποφόρ. «meltemi» = δυνατός βοριάς/βορειοανατολικός το καλοκαίρι. */
+export type WindWord = 'calm' | 'light' | 'moderate' | 'strong' | 'veryStrong' | 'meltemi';
+export function windWord(kmh: number, fromDeg: number, isoTime: string): WindWord {
+  const bft = beaufort(kmh);
+  const month = +isoTime.slice(5, 7);
+  const north = angleDiff(fromDeg, 20) <= 50;
+  if (kmh >= 25 && north && month >= 5 && month <= 9) return 'meltemi';
+  if (bft <= 1) return 'calm';
+  if (bft <= 3) return 'light';
+  if (bft === 4) return 'moderate';
+  if (bft <= 6) return 'strong';
+  return 'veryStrong';
+}
+
 /**
  * Πόσο από ένα κύμα που έρχεται από την κατεύθυνση `waveFrom` φτάνει σε παραλία που κοιτάει προς `facing`.
  * Με γωνία έως 50° φτάνει ολόκληρο· μέχρι 120° εξασθενεί (το κύμα στρίβει γύρω από ακρωτήρια)·

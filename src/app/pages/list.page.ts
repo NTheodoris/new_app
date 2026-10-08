@@ -55,7 +55,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
                 @if (v.distanceKm != null) { · {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }} }
               </p>
               @if (v.sea && v.weather) {
-                <p class="cond">{{ state.t($any('level' + v.sea.level)) }}</p>
+                <p class="cond">{{ state.t($any('level' + v.sea.level)) }} · 💨 {{ v.weather.windSpeed.toFixed(0) }} km/h</p>
               }
             </ion-label>
           </ion-item>

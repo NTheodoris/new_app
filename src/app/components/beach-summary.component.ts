@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
 import { DictKey } from '../services/i18n';
-import { LEVEL_COLORS } from '../services/sea';
+import { LEVEL_COLORS, compassWord, windWord } from '../services/sea';
 
 /** Σύνοψη παραλίας: όνομα και μια απλή απόφαση «κάνει για μπάνιο ή όχι». */
 @Component({
@@ -36,6 +36,11 @@ import { LEVEL_COLORS } from '../services/sea';
           👉 {{ state.t('goInstead') }}: <b>{{ a.view.beach.name[lang] }}</b> · {{ a.km.toFixed(0) }} {{ state.t('km') }}
         </button>
       }
+      <div class="windline">
+        💨 <b>{{ state.t(windKey(v)) }}</b> · {{ w.windSpeed.toFixed(0) }} km/h
+        @if (w.windSpeed >= 6) { {{ state.t('from') }} {{ compass(w.windDir) }} }
+        @if (v.sea.coastWave >= 0.2) { · 🌊 {{ state.t('waveShort') }} ~{{ v.sea.coastWave.toFixed(1) }} m }
+      </div>
       <div class="temps">
         @if (v.weather.temp != null) { ☀️ {{ state.t('airTemp') }} {{ v.weather.temp.toFixed(0) }}° }
         @if (v.weather.seaTemp != null) { · 🌊 {{ state.t('seaTemp') }} {{ v.weather.seaTemp.toFixed(0) }}° }
@@ -64,7 +69,8 @@ import { LEVEL_COLORS } from '../services/sea';
       display: block; width: 100%; text-align: left; margin-top: 8px; font: inherit; font-size: 13px;
       background: #e8f6ee; color: #135c37; border: 0; border-radius: 8px; padding: 8px 10px; cursor: pointer;
     }
-    .temps { margin-top: 8px; font-size: 13px; color: var(--ion-color-medium); }
+    .windline { margin-top: 8px; font-size: 13px; }
+    .temps { margin-top: 4px; font-size: 13px; color: var(--ion-color-medium); }
     .actions { display: flex; gap: 6px; margin-top: 8px; }
   `],
 })
@@ -95,6 +101,15 @@ export class BeachSummaryComponent {
     if (sea.level >= 1) return 'why_onshore';
     if (sea.onshore < -0.35 && (v.weather?.windSpeed ?? 0) >= 12) return 'why_offshore';
     return 'why_light';
+  }
+
+  windKey(v: BeachView) {
+    const w = v.weather!;
+    return ('wind_' + windWord(w.windSpeed, w.windDir, w.time)) as DictKey;
+  }
+
+  compass(deg: number) {
+    return compassWord(deg, this.state.lang());
   }
 
   go(id: string) {
