@@ -34,6 +34,8 @@ export interface HourWeather {
   gusts: number;         // km/h
   temp: number | null;   // °C αέρα
   waveHeight: number | null; // m (ανοιχτά)
+  waveDir: number | null;    // από πού έρχεται το κύμα (μοίρες)
+  wavePeriod: number | null; // s (περίοδος κύματος)
   seaTemp: number | null;    // °C θάλασσας
 }
 
@@ -43,6 +45,12 @@ export interface SeaCondition {
   onshore: number;
   /** Ένδειξη κύματος στην ακτή (km/h ισοδύναμου ανέμου) */
   index: number;
+  /** 0..1: πόσο από το κύμα των ανοιχτών φτάνει σε αυτή την παραλία (ανάλογα με την κατεύθυνσή του). null = άγνωστο */
+  waveReach: number | null;
+  /** Εκτιμώμενο ύψος κύματος στην ακτή (m) */
+  coastWave: number;
+  /** Τι καθορίζει το επίπεδο: ο τοπικός άνεμος ή το κύμα από τα ανοιχτά */
+  driver: 'wind' | 'waves';
   offshoreWarning: boolean;
   beaufort: number;
 }

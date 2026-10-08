@@ -145,7 +145,11 @@ export class AppState {
         `${FORECAST}?${common}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m&wind_speed_unit=kmh`,
       ).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
       // Τα θαλάσσια δεδομένα είναι προαιρετικά — αν αποτύχουν, συνεχίζουμε μόνο με τον άνεμο.
-      const marineReq = fetch(`${MARINE}?${common}&hourly=wave_height,sea_surface_temperature`)
+      // Το μοντέλο κύματος έχει αραιό πλέγμα και δεν έχει τιμές πάνω στη στεριά· γι' αυτό ρωτάμε
+      // ένα σημείο ~4 χλμ. μέσα στη θάλασσα, μπροστά από κάθε παραλία.
+      const sea = beaches.map((b) => offsetToSea(b));
+      const marineCommon = `latitude=${sea.map((p) => p.lat.toFixed(4)).join(',')}&longitude=${sea.map((p) => p.lon.toFixed(4)).join(',')}&forecast_days=${DAYS}&timezone=Europe%2FAthens`;
+      const marineReq = fetch(`${MARINE}?${marineCommon}&hourly=wave_height,wave_direction,wave_period,sea_surface_temperature`)
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
 
@@ -164,6 +168,8 @@ export class AppState {
           gusts: h.wind_gusts_10m[j] ?? 0,
           temp: h.temperature_2m[j] ?? null,
           waveHeight: m?.wave_height?.[j] ?? null,
+          waveDir: m?.wave_direction?.[j] ?? null,
+          wavePeriod: m?.wave_period?.[j] ?? null,
           seaTemp: m?.sea_surface_temperature?.[j] ?? null,
         })));
       });
@@ -179,6 +185,14 @@ export class AppState {
       this.loading.set(false);
     }
   }
+}
+
+/** Σημείο ~4 χλμ. από την παραλία, προς την κατεύθυνση που κοιτάει (δηλ. προς τη θάλασσα). */
+export function offsetToSea(b: Beach, km = 4): { lat: number; lon: number } {
+  const rad = (b.facing * Math.PI) / 180;
+  const dLat = (km * Math.cos(rad)) / 111;
+  const dLon = (km * Math.sin(rad)) / (111 * Math.cos((b.lat * Math.PI) / 180));
+  return { lat: b.lat + dLat, lon: b.lon + dLon };
 }
 
 function locationKey(list: Beach[]) {

@@ -42,6 +42,13 @@ import { TimePickerComponent } from '../components/time-picker.component';
             <!-- θάλασσα: τομέας προς τον οποίο κοιτάει η παραλία -->
             <path [attr.d]="seaSector(v.beach.facing)" class="sea" />
             <!-- άνεμος: βέλος από την κατεύθυνση που φυσάει προς το κέντρο -->
+            <!-- κύμα από τα ανοιχτά: βέλος από την κατεύθυνση που έρχεται -->
+            @if (v.weather?.waveDir != null && v.weather?.waveHeight != null) {
+              <g [attr.transform]="'rotate(' + v.weather!.waveDir + ')'">
+                <line x1="0" y1="-48" x2="0" y2="-8" class="wave" />
+                <path d="M -6 -16 L 0 -6 L 6 -16 Z" class="wave-head" />
+              </g>
+            }
             @if (v.weather; as w) {
               <g [attr.transform]="'rotate(' + w.windDir + ')'">
                 <line x1="0" y1="-48" x2="0" y2="-8" class="wind" />
@@ -55,7 +62,16 @@ import { TimePickerComponent } from '../components/time-picker.component';
             @if (v.weather; as w) {
               <div><span class="sw wind"></span> {{ state.t('wind') }} {{ state.t('from') }} <b>{{ dir(w.windDir) }}</b></div>
               @if (w.waveHeight != null) {
-                <div>🌊 {{ state.t('waveOffshore') }}: <b>{{ w.waveHeight.toFixed(1) }} m</b></div>
+                <div><span class="sw wave"></span> {{ state.t('waveOffshore') }}: <b>{{ w.waveHeight.toFixed(1) }} m</b>
+                  @if (w.waveDir != null) { {{ state.t('from') }} <b>{{ dir(w.waveDir) }}</b> }
+                  @if (w.wavePeriod != null) { · {{ state.t('wavePeriod') }} {{ w.wavePeriod.toFixed(0) }} s }
+                </div>
+                @if (v.sea!.waveReach != null) {
+                  <div class="reach">{{ reachText(v.sea!.waveReach!) }}</div>
+                }
+              }
+              @if (v.sea) {
+                <div>🏖️ {{ state.t('waveEstimate') }}: <b>~{{ v.sea.coastWave.toFixed(1) }} m</b></div>
               }
               @if (w.temp != null) { <div>🌡️ {{ state.t('airTemp') }}: <b>{{ w.temp.toFixed(0) }}°C</b></div> }
             }
@@ -96,11 +112,15 @@ import { TimePickerComponent } from '../components/time-picker.component';
     .sea { fill: rgba(30, 136, 229, .25); stroke: #1e88e5; stroke-width: 1; }
     .wind { stroke: #455a64; stroke-width: 3; stroke-linecap: round; }
     .wind-head { fill: #455a64; }
+    .wave { stroke: #00acc1; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1 6; }
+    .wave-head { fill: #00acc1; }
+    .reach { font-size: 12px; color: var(--ion-color-medium); margin-left: 18px; }
     .beach { fill: #f5c26b; stroke: #a0782b; }
     .legend { font-size: 13px; display: grid; gap: 4px; }
     .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
     .sw.sea { background: rgba(30,136,229,.35); border: 1px solid #1e88e5; }
     .sw.wind { background: #455a64; }
+    .sw.wave { background: #00acc1; }
     h3 { font-size: 15px; margin: 18px 0 6px; }
     .hours { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; }
     .hour {
@@ -149,6 +169,10 @@ export class BeachPage {
 
   dir(d: number) {
     return compass(d, this.state.lang());
+  }
+
+  reachText(r: number) {
+    return this.state.t(r >= 0.7 ? 'wavesReach' : r >= 0.2 ? 'wavesPartial' : 'wavesBlocked');
   }
 
   /** Τομέας 120° γύρω από την κατεύθυνση που κοιτάει η παραλία. */

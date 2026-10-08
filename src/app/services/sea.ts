@@ -20,25 +20,58 @@ export function compass(deg: number, lang: 'el' | 'en'): string {
 }
 
 /**
- * Εκτίμηση κατάστασης θάλασσας σε μια παραλία.
+ * Πόσο από ένα κύμα που έρχεται από την κατεύθυνση `waveFrom` φτάνει σε παραλία που κοιτάει προς `facing`.
+ * Με γωνία έως 50° φτάνει ολόκληρο· μέχρι 120° εξασθενεί (το κύμα στρίβει γύρω από ακρωτήρια)·
+ * πέρα από ~150° (το κύμα έρχεται από τη στεριά) δεν φτάνει καθόλου.
+ */
+export function waveReach(waveFrom: number, facing: number): number {
+  const d = angleDiff(waveFrom, facing);
+  if (d <= 50) return 1;
+  if (d <= 120) return 1 - 0.85 * ((d - 50) / 70);
+  if (d <= 150) return 0.15 * (1 - (d - 120) / 30);
+  return 0;
+}
+
+/** Τα μακρύτερης περιόδου κύματα έχουν περισσότερη ενέργεια (0.85 στα 4 s … 1.15 στα 14 s). */
+export function periodFactor(periodSec: number | null): number {
+  if (periodSec == null) return 1;
+  return Math.min(1.15, Math.max(0.85, 0.85 + 0.03 * (periodSec - 4)));
+}
+
+/** Αντιστοιχία ύψους κύματος (m) → «ισοδύναμος άνεμος» που χρησιμοποιούν τα όρια των επιπέδων. */
+const WAVE_TO_INDEX = 22;
+
+/**
+ * Εκτίμηση κατάστασης θάλασσας σε μια παραλία. Δύο πηγές κύματος, παίρνουμε τη μεγαλύτερη:
  *
- * Ιδέα: ο άνεμος που φυσάει από τη θάλασσα προς την ακτή (onshore) φέρνει κύμα,
- * ενώ ο άνεμος από τη στεριά (offshore) αφήνει τα νερά ήρεμα κοντά στην ακτή.
- * Σε κλειστούς κόλπους (μικρό exposure) το κύμα δεν προλαβαίνει να μεγαλώσει.
+ * 1. Τοπικός άνεμος: ο άνεμος που φυσάει από τη θάλασσα προς την ακτή (onshore) φέρνει κύμα,
+ *    ενώ ο άνεμος από τη στεριά (offshore) αφήνει τα νερά ήρεμα κοντά στην ακτή.
+ * 2. Κύμα από τα ανοιχτά (φουσκοθαλασσιά): έχει δική του κατεύθυνση και περίοδο. Φτάνει στην
+ *    παραλία μόνο αν έρχεται από το μέρος που κοιτάει — ακόμη κι όταν ο τοπικός άνεμος έχει κοπάσει
+ *    ή φυσάει από τη στεριά. Αν η κατεύθυνση του κύματος λείπει, γίνεται κατά προσέγγιση με τον άνεμο.
+ *
+ * Σε κλειστούς κόλπους (μικρό exposure) το κύμα δεν προλαβαίνει να μεγαλώσει ή δεν μπαίνει.
  */
 export function seaCondition(beach: Beach, w: HourWeather): SeaCondition {
   const diff = angleDiff(w.windDir, beach.facing);
   const onshore = Math.cos((diff * Math.PI) / 180);
   // Λίγο κύμα φτάνει και με πλάγιο άνεμο, γι' αυτό υπάρχει ένα μικρό υπόλοιπο.
   const effectiveWind = w.windSpeed * (0.15 + 0.85 * Math.max(0, onshore));
-  let index = effectiveWind * beach.exposure;
+  const windIndex = effectiveWind * beach.exposure;
 
-  // Αν το μοντέλο θάλασσας δίνει μεγάλο κύμα ανοιχτά και ο αέρας είναι προς την ακτή,
-  // ενίσχυσε λίγο την εκτίμηση (π.χ. φουσκοθαλασσιά από προηγούμενο αέρα).
-  if (w.waveHeight != null && onshore > 0.2) {
-    index = Math.max(index, w.waveHeight * 22 * beach.exposure);
+  let reach: number | null = null;
+  let waveIndex = 0;
+  if (w.waveHeight != null) {
+    if (w.waveDir != null) {
+      reach = waveReach(w.waveDir, beach.facing);
+      waveIndex = w.waveHeight * reach * periodFactor(w.wavePeriod) * WAVE_TO_INDEX * beach.exposure;
+    } else if (onshore > 0.2) {
+      // Χωρίς κατεύθυνση κύματος: υποθέτουμε ότι ακολουθεί τον άνεμο (παλιός τρόπος υπολογισμού).
+      waveIndex = w.waveHeight * WAVE_TO_INDEX * beach.exposure;
+    }
   }
 
+  const index = Math.max(windIndex, waveIndex);
   let level: SeaLevel = 0;
   if (index >= 28) level = 3;
   else if (index >= 18) level = 2;
@@ -48,6 +81,9 @@ export function seaCondition(beach: Beach, w: HourWeather): SeaCondition {
     level,
     onshore,
     index: Math.round(index),
+    waveReach: reach,
+    coastWave: Math.round((index / WAVE_TO_INDEX) * 10) / 10,
+    driver: waveIndex > windIndex * 1.15 && level > 0 ? 'waves' : 'wind',
     offshoreWarning: onshore < -0.3 && w.windSpeed >= 25,
     beaufort: beaufort(w.windSpeed),
   };

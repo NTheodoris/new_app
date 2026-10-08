@@ -68,6 +68,10 @@ export class BeachSummaryComponent {
   }
 
   why(v: BeachView) {
+    const sea = v.sea;
+    if (sea?.driver === 'waves') {
+      return (sea.onshore < -0.35 ? this.state.t('swellOffshoreWind') : this.state.t('wavesReach'));
+    }
     const o = v.sea?.onshore ?? 0;
     if (o > 0.35) return this.state.t('onshoreWind');
     if (o < -0.35) return this.state.t('offshoreWind');
