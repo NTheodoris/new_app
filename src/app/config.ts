@@ -12,10 +12,10 @@
  * Όσο μένουν κενές, η εφαρμογή διαβάζει τις παραλίες από το data/beaches.json στο GitHub.
  */
 export const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  appId: '',
+  apiKey: 'AIzaSyDUWLr7g9nAYM1i0zNYYedJ07qx81vmoqo',
+  authDomain: 'lesvos-beaches.firebaseapp.com',
+  projectId: 'lesvos-beaches',
+  appId: '1:956689348810:web:8cfe703c5d57cb8a015c33',
 };
 
 export const firebaseConfigured = () => !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
