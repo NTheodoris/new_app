@@ -1056,6 +1056,75 @@
         "en": "Beach on the east coast, south of Mytilene."
       },
       "active": true
+    },
+    {
+      "id": "chrousos",
+      "lat": 39.10854,
+      "lon": 25.97528,
+      "facing": 190,
+      "exposure": 1.0,
+      "name": {
+        "el": "Χρούσος",
+        "en": "Chrousos"
+      },
+      "area": {
+        "el": "Ερεσός",
+        "en": "Eresos"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Ανοιχτή παραλία στη νότια ακτή, ανατολικά της Σκάλας Ερεσού.",
+        "en": "Open beach on the south coast, east of Skala Eresou."
+      },
+      "active": true
+    },
+    {
+      "id": "podaras",
+      "lat": 39.10761,
+      "lon": 26.02112,
+      "facing": 200,
+      "exposure": 0.9,
+      "name": {
+        "el": "Ποδαράς",
+        "en": "Podaras"
+      },
+      "area": {
+        "el": "Ερεσός",
+        "en": "Eresos"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στη νότια ακτή, ανοιχτή προς τον νότο.",
+        "en": "Beach on the south coast, open to the south."
+      },
+      "active": true
+    },
+    {
+      "id": "makaria",
+      "lat": 39.08829,
+      "lon": 26.07584,
+      "facing": 200,
+      "exposure": 0.9,
+      "name": {
+        "el": "Μακαριά",
+        "en": "Makaria"
+      },
+      "area": {
+        "el": "Ερεσός",
+        "en": "Eresos"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στη νότια ακτή, ανοιχτή προς τον νότο.",
+        "en": "Beach on the south coast, open to the south."
+      },
+      "active": true
     }
   ]
 }
