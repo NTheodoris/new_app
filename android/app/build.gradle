@@ -4,7 +4,7 @@ android {
     namespace "com.ntheodoris.lesvosbeaches"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.ntheodoris.lesvosbeaches"
+        applicationId "com.ntheodoris.lesvosgo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

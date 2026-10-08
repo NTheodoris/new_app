@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Κανόνες ασφαλείας του Firestore για την εφαρμογή «Λέσβος · Παραλίες».
+// Κανόνες ασφαλείας του Firestore για την εφαρμογή «LesvosGo».
 // Αντέγραψέ τους στο Firebase Console → Firestore Database → Rules → Publish.
 //
 // ⚠️ Πριν το Publish, άλλαξε το ΤΟ_EMAIL_ΣΟΥ@gmail.com παρακάτω στο Gmail με το οποίο

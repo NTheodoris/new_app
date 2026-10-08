@@ -10,7 +10,7 @@
     "android": "ng build && npx cap sync android && npx cap open android",
     "sync": "ng build && npx cap sync android",
     "deploy:web": "bash deploy-web.sh",
-    "icons": "node resources-src/render.js && capacitor-assets generate --android --iconBackgroundColor '#0a5f86' --iconBackgroundColorDark '#0a5f86' --splashBackgroundColor '#0a5f86' --splashBackgroundColorDark '#0a5f86'"
+    "icons": "node resources-src/build.js && capacitor-assets generate --android --iconBackgroundColor '#016aa9' --iconBackgroundColorDark '#016aa9' --splashBackgroundColor '#016aa9' --splashBackgroundColorDark '#016aa9'"
   },
   "prettier": {
     "printWidth": 100,

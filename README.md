@@ -1,4 +1,4 @@
-# 🏖️ Λέσβος · Παραλίες
+# 🏖️ LesvosGo
 
 Εφαρμογή Android (Ionic + Angular + Capacitor) για τουρίστες. Δείχνει όλες τις παραλίες της Λέσβου σε χάρτη
 και, ανάλογα με τον άνεμο και τον προσανατολισμό κάθε παραλίας, εκτιμά αν θα έχει **ήρεμα νερά ή κύμα**.
@@ -83,7 +83,7 @@ Safari → κουμπί κοινοποίησης → **Προσθήκη στην
 
 1. **Project**: https://console.firebase.google.com → σύνδεση με το Gmail σου → **Create a project** →
    όνομα `lesvos-beaches` → Google Analytics: **όχι** → Create.
-2. **Web app**: στην αρχική του project πάτα το εικονίδιο **`</>`** (Web) → όνομα `Lesvos Beaches` →
+2. **Web app**: στην αρχική του project πάτα το εικονίδιο **`</>`** (Web) → όνομα `LesvosGo` →
    *χωρίς* Firebase Hosting → Register app. Θα εμφανιστεί ένα `firebaseConfig = { ... }`: **αντίγραψέ το**.
 3. **Βάση**: μενού αριστερά **Build → Firestore Database** → **Create database** → Location **eur3 (Europe)**
    → **Start in production mode** → Create.
@@ -102,17 +102,18 @@ Safari → κουμπί κοινοποίησης → **Προσθήκη στην
 > Η σελίδα διαχείρισης είναι για υπολογιστή ή κινητό μέσω browser. Μέσα στην εφαρμογή Android η σύνδεση Google δεν
 > υποστηρίζεται, ούτε χρειάζεται.
 
-## Εικονίδιο και οθόνη έναρξης
+## Εικονίδιο, οθόνη έναρξης και γραφικά για το Google Play
 
-Το σχέδιο (ήλιος που δύει + κύματα) είναι στο `resources-src/art.js` (SVG). Αν το αλλάξεις:
+Τα τρία πρωτότυπα είναι στο `resources-src/originals/` (`icon.png`, `splash-bg.png`, `feature.png`).
+Αν τα αλλάξεις:
 
 ```bash
-npm run icons        # φτιάχνει τα PNG στο assets/ και όλα τα μεγέθη για Android
+npm run icons        # φτιάχνει όλα τα μεγέθη για Android, web και τα γραφικά του store
 npm run sync
 ```
 
-Για το web τα εικονίδια είναι στο `public/icons/` και το `public/manifest.webmanifest`
-(στο iPhone: Safari → Κοινοποίηση → «Προσθήκη στην οθόνη Αφετηρίας»).
+- Web: `public/icons/` και `public/manifest.webmanifest` (στο iPhone: Safari → Κοινοποίηση → «Προσθήκη στην οθόνη Αφετηρίας»).
+- Google Play: `store/icon-512.png` και `store/feature-graphic-1024x500.png`.
 
 ## Δομή
 

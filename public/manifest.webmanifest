@@ -1,12 +1,12 @@
 {
-  "name": "Λέσβος · Παραλίες",
-  "short_name": "Λέσβος",
+  "name": "LesvosGo",
+  "short_name": "LesvosGo",
   "description": "Οι παραλίες της Λέσβου σε χάρτη, με εκτίμηση κύματος ανάλογα με τον αέρα.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0a5f86",
-  "theme_color": "#0b6e99",
+  "background_color": "#016aa9",
+  "theme_color": "#016aa9",
   "lang": "el",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },

@@ -1,7 +1,7 @@
 import { Lang } from '../models';
 
 const DICT = {
-  appTitle: { el: 'Λέσβος · Παραλίες', en: 'Lesvos · Beaches' },
+  appTitle: { el: 'LesvosGo', en: 'LesvosGo' },
   tabMap: { el: 'Χάρτης', en: 'Map' },
   tabList: { el: 'Παραλίες', en: 'Beaches' },
   tabTips: { el: 'Συμβουλές', en: 'Tips' },
