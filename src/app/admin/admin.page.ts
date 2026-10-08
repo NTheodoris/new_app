@@ -132,6 +132,9 @@ const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
                   <label>Περιοχή (ΕΛ)<input [(ngModel)]="e.area.el" /></label>
                   <label>Περιοχή (EN)<input [(ngModel)]="e.area.en" /></label>
                 </div>
+                <label>Επικόλληση από Google Maps (π.χ. 39.0668, 26.4711)
+                  <input placeholder="επικόλλησε εδώ τις συντεταγμένες" (input)="pasteCoords($any($event.target))" />
+                </label>
                 <div class="row">
                   <label>Γεωγρ. πλάτος (lat)<input type="number" step="any" [(ngModel)]="e.lat" (ngModelChange)="syncMap()" /></label>
                   <label>Γεωγρ. μήκος (lon)<input type="number" step="any" [(ngModel)]="e.lon" (ngModelChange)="syncMap()" /></label>
@@ -432,6 +435,20 @@ export class AdminPage implements OnDestroy {
 
   dirLabel(d: number) {
     return compass(d, 'el');
+  }
+
+  /** Δέχεται «39.0668, 26.4711» όπως το αντιγράφει το Google Maps (δεξί κλικ → πρώτη γραμμή). */
+  pasteCoords(input: HTMLInputElement) {
+    const m = input.value.match(/(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)/);
+    const e = this.edit();
+    if (!m || !e) return;
+    const lat = Number(m[1].replace(',', '.'));
+    const lon = Number(m[2].replace(',', '.'));
+    if (!(lat > 38.8 && lat < 39.6 && lon > 25.7 && lon < 26.8)) return;
+    e.lat = Math.round(lat * 1e5) / 1e5;
+    e.lon = Math.round(lon * 1e5) / 1e5;
+    input.value = '';
+    this.syncMap();
   }
 
   exposureLabel(x: number) {
