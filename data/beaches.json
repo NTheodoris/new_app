@@ -1033,6 +1033,29 @@
         "en": "Pebbly beach in a fishing village with tavernas serving fresh fish."
       },
       "active": true
+    },
+    {
+      "id": "katia",
+      "lat": 39.03373,
+      "lon": 26.61337,
+      "facing": 105,
+      "exposure": 0.9,
+      "name": {
+        "el": "Κάτια",
+        "en": "Katia"
+      },
+      "area": {
+        "el": "Μυτιλήνη",
+        "en": "Mytilene"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στην ανατολική ακτή, νότια της Μυτιλήνης.",
+        "en": "Beach on the east coast, south of Mytilene."
+      },
+      "active": true
     }
   ]
 }
