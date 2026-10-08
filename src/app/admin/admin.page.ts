@@ -133,8 +133,8 @@ const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
                   <label>Περιοχή (EN)<input [(ngModel)]="e.area.en" /></label>
                 </div>
                 <div class="row">
-                  <label>Γεωγρ. πλάτος (lat)<input type="number" step="0.0001" [(ngModel)]="e.lat" (ngModelChange)="syncMap()" /></label>
-                  <label>Γεωγρ. μήκος (lon)<input type="number" step="0.0001" [(ngModel)]="e.lon" (ngModelChange)="syncMap()" /></label>
+                  <label>Γεωγρ. πλάτος (lat)<input type="number" step="any" [(ngModel)]="e.lat" (ngModelChange)="syncMap()" /></label>
+                  <label>Γεωγρ. μήκος (lon)<input type="number" step="any" [(ngModel)]="e.lon" (ngModelChange)="syncMap()" /></label>
                 </div>
 
                 <label>Προς τα πού κοιτάει: <b>{{ e.facing }}° ({{ dirLabel(e.facing) }})</b></label>
@@ -144,6 +144,10 @@ const DIRS = [0, 45, 90, 135, 180, 225, 270, 315];
                   }
                 </div>
 
+                <div class="row">
+                  <label>Μοίρες κατεύθυνσης (0–359)<input type="number" min="0" max="359" step="1" [(ngModel)]="e.facing" (ngModelChange)="syncMap()" /></label>
+                  <label>Έκθεση (0,2–1)<input type="number" min="0.2" max="1" step="any" [(ngModel)]="e.exposure" /></label>
+                </div>
                 <label>Πόσο ανοιχτή στο πέλαγος: <b>{{ exposureLabel(e.exposure) }}</b>
                   <input type="range" min="0.2" max="1" step="0.05" [(ngModel)]="e.exposure" />
                   <small>αριστερά: κλειστός κόλπος (σχεδόν πάντα ήρεμα) · δεξιά: ανοιχτό πέλαγος</small>
