@@ -58,7 +58,7 @@ const DICT = {
   km: { el: 'χλμ.', en: 'km' },
   bft: { el: 'μποφόρ', en: 'Bft' },
   privacy: { el: 'Πολιτική απορρήτου', en: 'Privacy policy' },
-  why_swell: { el: "Αποθαλασσιά: το κύμα έρχεται από αέρα που φυσάει (ή φύσαγε) στα ανοιχτά — εδώ μπορεί να μη φυσάει καθόλου.", en: "Swell: the waves come from wind blowing (or that blew) out at sea — it may be calm here." },
+  why_swell: { el: "Έρχεται κύμα από τα ανοιχτά, ακόμα κι αν εδώ φυσάει λίγο.", en: "Waves are rolling in from the open sea, even though it's not very windy here." },
   sunsetLabel: { el: "Ηλιοβασίλεμα", en: "Sunset" },
   sunsetSea: { el: "πάνω από τη θάλασσα", en: "over the sea" },
   sunsetLand: { el: "πίσω από τη στεριά", en: "behind the land" },
@@ -110,7 +110,7 @@ export type DictKey = keyof typeof DICT;
 
 /** Γερμανικά. */
 const DE: Record<DictKey, string> = {
-  why_swell: "Dünung: Die Wellen stammen von Wind draußen auf dem Meer (jetzt oder vorher) — hier kann es windstill sein.",
+  why_swell: "Vom offenen Meer kommen Wellen, auch wenn es hier kaum windet.",
   sunsetLabel: "Sonnenuntergang",
   sunsetSea: "über dem Meer",
   sunsetLand: "hinter dem Land",
@@ -208,7 +208,7 @@ const DE: Record<DictKey, string> = {
 
 /** Τουρκικά. */
 const TR: Record<DictKey, string> = {
-  why_swell: "Ölü dalga: dalgalar açık denizde esen (ya da esmiş) rüzgârdan geliyor — burada hiç rüzgâr olmayabilir.",
+  why_swell: "Burada rüzgâr az olsa da açık denizden dalga geliyor.",
   sunsetLabel: "Gün batımı",
   sunsetSea: "denizin üzerinde",
   sunsetLand: "karanın arkasında",
