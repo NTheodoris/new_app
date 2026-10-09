@@ -1171,6 +1171,29 @@
         "en": "Beach on the east coast facing Asia Minor — exposed to the meltemi."
       },
       "active": true
+    },
+    {
+      "id": "aspropotamos",
+      "lat": 39.2744,
+      "lon": 26.37961,
+      "facing": 55,
+      "exposure": 0.8,
+      "name": {
+        "el": "Ασπροπόταμος",
+        "en": "Aspropotamos"
+      },
+      "area": {
+        "el": "Μανταμάδος",
+        "en": "Mantamados"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στην ανατολική ακτή, απέναντι από τα μικρασιατικά παράλια — εκτεθειμένη στο μελτέμι.",
+        "en": "Beach on the east coast facing Asia Minor — exposed to the meltemi."
+      },
+      "active": true
     }
   ]
 }
