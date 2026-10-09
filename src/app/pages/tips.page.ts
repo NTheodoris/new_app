@@ -25,6 +25,7 @@ interface Tip { icon: string; title: { el: string; en: string }; body: { el: str
       </ul>
       <p class="note">{{ state.t('dataNote') }}</p>
       <p class="note">{{ state.t($any('src_' + state.beachSource())) }} ({{ state.beaches().length }})</p>
+      <p class="note"><a [href]="'https://ntheodoris.github.io/new_app/privacy.html#' + state.lang()" target="_blank" rel="noopener">{{ state.t('privacy') }}</a></p>
     </ion-content>
   `,
   styles: [`
@@ -36,6 +37,7 @@ interface Tip { icon: string; title: { el: string; en: string }; body: { el: str
     p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--lg-ink); max-width: 62ch; }
     .note { font-size: 12px; color: var(--lg-muted); margin: 14px 16px 0; }
     .note:last-child { margin-bottom: 24px; }
+    .note a { color: var(--lg-sea); font-weight: 600; }
   `],
 })
 export class TipsPage {

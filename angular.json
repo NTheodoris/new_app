@@ -58,10 +58,12 @@
             ],
             "styles": [
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/maplibre-gl/dist/maplibre-gl.css",
               "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [
-              "leaflet"
+              "leaflet",
+              "@maplibre/maplibre-gl-leaflet"
             ]
           },
           "configurations": {

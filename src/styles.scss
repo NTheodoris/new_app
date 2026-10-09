@@ -95,3 +95,5 @@ ion-tab-button { font-size: 12px; }
   box-shadow: 0 0 0 1.5px #fff;
 }
 .leaflet-container { font-family: var(--ion-font-family); background: #cfe6ee; }
+.leaflet-control-attribution { font-size: 10px; line-height: 1.5; background: rgba(255,255,255,.8) !important; }
+.leaflet-control-attribution a { color: var(--lg-muted); }

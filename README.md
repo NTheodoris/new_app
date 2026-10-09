@@ -151,5 +151,8 @@ firestore.rules              κανόνες ασφαλείας της βάσης
 - Θέσεις παραλιών: [EEA – Bathing Water Directive](https://marine.discomap.eea.europa.eu/arcgis/rest/services/BathingWater/BathingWater_Dyna_WM/MapServer)
 - Περιγραφές: [lesvos.com – Beaches](https://www.lesvos.com/beaches/index.html)
 - Καιρός και θάλασσα: [Open-Meteo](https://open-meteo.com) (Forecast και Marine API)
-- Χάρτης: © [OpenStreetMap](https://www.openstreetmap.org/copyright). Για εφαρμογή με πολλούς χρήστες
-  καλό είναι να χρησιμοποιηθεί πάροχος tiles, π.χ. MapTiler ή Stadia, σύμφωνα με την πολιτική χρήσης του OSM.
+- Χάρτης: [OpenFreeMap](https://openfreemap.org) (στυλ Positron, μέσω MapLibre GL) — δωρεάν, χωρίς κλειδί και χωρίς όρια,
+  επιτρέπεται σε εφαρμογές. Δεδομένα © [OpenMapTiles](https://www.openmaptiles.org/) © [OpenStreetMap](https://www.openstreetmap.org/copyright).
+  Αν η συσκευή δεν έχει WebGL ή το OpenFreeMap δεν απαντήσει, η εφαρμογή πέφτει στα πλακίδια του OpenStreetMap.
+  Το admin χρησιμοποιεί απευθείας OpenStreetMap (λίγη χρήση, εντάξει με την πολιτική τους).
+- Πολιτική απορρήτου: `public/privacy.html` → https://ntheodoris.github.io/new_app/privacy.html (αυτό το link μπαίνει στο Google Play / App Store).

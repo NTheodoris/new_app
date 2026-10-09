@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { IonToolbar, IonContent, IonIcon, IonFab, IonFabButton, IonSpinner } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as L from 'leaflet';
+import { maplibreGL } from '@maplibre/maplibre-gl-leaflet';
 import { AppState, BeachView } from '../services/app-state.service';
 import { waveGlyph } from '../services/waterline';
 import { SeaLevel } from '../models';
@@ -114,6 +115,7 @@ export class MapPage implements OnDestroy {
   });
 
   private map?: L.Map;
+  private attribution?: L.Control.Attribution;
   private layer = L.layerGroup();
   private meLayer = L.layerGroup();
 
@@ -138,12 +140,9 @@ export class MapPage implements OnDestroy {
     if (!this.map) {
       this.map = L.map(this.mapEl.nativeElement, { zoomControl: false, attributionControl: false })
         .setView([39.17, 26.25], 9);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© OpenStreetMap',
-      }).addTo(this.map);
-      // Η αναφορά στο OpenStreetMap πάνω δεξιά, για να μην την κρύβει η κάρτα.
-      L.control.attribution({ position: 'topright', prefix: false }).addTo(this.map);
+      // Η αναφορά των χαρτών πάνω δεξιά, για να μην την κρύβει η κάρτα.
+      this.attribution = L.control.attribution({ position: 'topright', prefix: false }).addTo(this.map);
+      this.addBaseMap(this.map);
       this.layer.addTo(this.map);
       this.meLayer.addTo(this.map);
       this.map.on('click', () => this.selectedId.set(null));
@@ -153,6 +152,44 @@ export class MapPage implements OnDestroy {
       this.map?.invalidateSize();
       this.fitIsland();
     }, 80);
+  }
+
+  /**
+   * Υπόβαθρο χάρτη: OpenFreeMap (δωρεάν, χωρίς κλειδί, χωρίς όρια, επιτρέπεται σε εφαρμογές).
+   * Αν η συσκευή δεν υποστηρίζει WebGL ή ο χάρτης δεν φορτώσει, πέφτουμε στα πλακίδια του OpenStreetMap.
+   */
+  private addBaseMap(map: L.Map) {
+    const osmFallback = () => {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+      this.attribution?.addAttribution('© OpenStreetMap');
+    };
+    try {
+      const canvas = document.createElement('canvas');
+      if (!(canvas.getContext('webgl2') || canvas.getContext('webgl'))) throw new Error('no webgl');
+      const gl = maplibreGL({ style: 'https://tiles.openfreemap.org/styles/positron' } as any).addTo(map);
+      const credit =
+        '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> · <a href="https://www.openmaptiles.org/" target="_blank">© OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>';
+      this.attribution?.addAttribution(credit);
+      const m = gl.getMaplibreMap();
+      let loaded = false;
+      m.on('load', () => {
+        loaded = true;
+        // Πιο «θαλασσινό» μπλε για το νερό, στα χρώματα της εφαρμογής.
+        for (const layer of m.getStyle().layers ?? []) {
+          if (layer.type === 'fill' && /water/.test(layer.id)) m.setPaintProperty(layer.id, 'fill-color', '#b7dbe7');
+        }
+      });
+      // Αν μέσα σε 20" δεν έχει φορτώσει το στυλ (π.χ. πρόβλημα στον πάροχο), δείχνουμε OSM.
+      setTimeout(() => {
+        if (!loaded && !m.isStyleLoaded()) {
+          map.removeLayer(gl);
+          this.attribution?.removeAttribution(credit);
+          osmFallback();
+        }
+      }, 20000);
+    } catch {
+      osmFallback();
+    }
   }
 
   /** Δείχνει όλο το νησί στο κομμάτι του χάρτη που δεν κρύβει η κάρτα. */
