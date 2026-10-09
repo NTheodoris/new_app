@@ -6,6 +6,7 @@ import { TimePickerComponent } from '../components/time-picker.component';
 import { AppHeaderComponent } from '../components/app-header.component';
 import { WaterlineComponent } from '../components/waterline.component';
 import { DictKey } from '../services/i18n';
+import { beaufort } from '../services/sea';
 
 type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'hotspring' | 'nudist' | 'tavern';
 
@@ -52,7 +53,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
               @if (v.sea && v.weather) {
                 <span class="right">
                   <span class="vd" [style.color]="'var(--lv' + v.sea.level + '-ink)'">{{ state.t($any('legend' + v.sea.level)) }}</span>
-                  <span class="wd">{{ v.weather.windSpeed.toFixed(0) }} km/h</span>
+                  <span class="wd">{{ v.weather.windSpeed.toFixed(0) }} km/h · {{ bf(v.weather.windSpeed) }} {{ state.t('bft') }}</span>
                 </span>
               }
             </a>
@@ -105,6 +106,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
 })
 export class ListPage {
   state = inject(AppState);
+  bf = beaufort;
   query = signal('');
   sort = signal<'calm' | 'near'>('calm');
   filters = signal<Set<Filter>>(new Set());

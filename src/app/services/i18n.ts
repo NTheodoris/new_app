@@ -56,6 +56,7 @@ const DICT = {
   bestNowSub: { el: 'Η πιο ήρεμη παραλία', en: 'The calmest beach' },
   near: { el: 'κοντά σου', en: 'near you' },
   km: { el: 'χλμ.', en: 'km' },
+  bft: { el: 'μποφόρ', en: 'Bft' },
   loading: { el: 'Φόρτωση καιρού…', en: 'Loading weather…' },
   offline: {
     el: 'Δεν ήταν δυνατή η λήψη καιρού. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',

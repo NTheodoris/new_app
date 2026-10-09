@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState, BeachView } from '../services/app-state.service';
 import { DictKey } from '../services/i18n';
-import { compass, compassWord, windWord } from '../services/sea';
+import { beaufort, compass, compassWord, windWord } from '../services/sea';
 import { WaterlineComponent } from './waterline.component';
 
 /** Σύνοψη παραλίας: όνομα, η απόφαση «κάνει για μπάνιο;» με τη γραμμή του νερού, και τα βασικά του καιρού. */
@@ -48,7 +48,7 @@ import { WaterlineComponent } from './waterline.component';
 
       @if (compact()) {
         <p class="factline">
-          <span>{{ state.t(windKey(v)) }} <b>{{ w.windSpeed.toFixed(0) }} km/h</b>@if (w.windSpeed >= 6) { {{ compassShort(w.windDir) }}}</span>
+          <span>{{ state.t(windKey(v)) }} <b>{{ w.windSpeed.toFixed(0) }} km/h · {{ bf(w.windSpeed) }} {{ state.t('bft') }}</b>@if (w.windSpeed >= 6) { {{ compassShort(w.windDir) }}}</span>
           @if (w.seaTemp != null) { <span>{{ state.t('seaTemp') }} <b>{{ w.seaTemp.toFixed(0) }}°</b></span> }
           @if (w.temp != null) { <span>{{ state.t('airTemp') }} <b>{{ w.temp.toFixed(0) }}°</b></span> }
         </p>
@@ -56,7 +56,7 @@ import { WaterlineComponent } from './waterline.component';
       <dl class="facts">
         <div>
           <dt>{{ state.t(windKey(v)) }}</dt>
-          <dd>{{ w.windSpeed.toFixed(0) }} <small>km/h</small></dd>
+          <dd>{{ w.windSpeed.toFixed(0) }} <small>km/h</small> <span class="bf">{{ bf(w.windSpeed) }} {{ state.t('bft') }}</span></dd>
           @if (w.windSpeed >= 6) { <dd class="sub">{{ state.t('from') }} {{ compass(w.windDir) }}</dd> }
         </div>
         @if (w.seaTemp != null) {
@@ -121,6 +121,7 @@ import { WaterlineComponent } from './waterline.component';
     .facts dt { font-size: 12px; color: var(--lg-muted); }
     .facts dd { margin: 1px 0 0; font-size: 19px; font-weight: 720; color: var(--lg-ink); font-variant-numeric: tabular-nums; }
     .facts dd small { font-size: 12px; font-weight: 600; color: var(--lg-muted); }
+    .facts dd .bf { font-size: 14px; font-weight: 700; color: var(--lg-ink); margin-left: 4px; white-space: nowrap; }
     .facts dd.sub { font-size: 12px; font-weight: 500; color: var(--lg-muted); }
 
     .actions { display: flex; gap: 8px; margin-top: 14px; }
@@ -167,6 +168,10 @@ export class BeachSummaryComponent {
 
   compass(deg: number) {
     return compassWord(deg, this.state.lang());
+  }
+
+  bf(kmh: number) {
+    return beaufort(kmh);
   }
 
   compassShort(deg: number) {
