@@ -589,8 +589,8 @@
       "id": "tsilia",
       "lat": 38.9805,
       "lon": 26.5146,
-      "facing": 160,
-      "exposure": 1,
+      "facing": 210,
+      "exposure": 0.7,
       "name": {
         "el": "Τσίλια",
         "en": "Tsilia"
