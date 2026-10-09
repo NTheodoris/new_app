@@ -156,7 +156,7 @@ export class BeachSummaryComponent {
   /** Μία απλή φράση για το «γιατί». */
   whyKey(v: BeachView): DictKey {
     const sea = v.sea!;
-    if (sea.driver === 'waves') return 'why_waves';
+    if (sea.driver === 'waves') return (v.weather?.windSpeed ?? 0) < 15 ? 'why_swell' : 'why_waves';
     if (sea.offshoreWarning) return 'why_offshore';
     if (sea.level >= 1) return 'why_onshore';
     if (sea.onshore < -0.35 && (v.weather?.windSpeed ?? 0) >= 12) return 'why_offshore';
