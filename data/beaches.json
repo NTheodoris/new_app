@@ -1148,6 +1148,29 @@
         "en": "Beach on the south coast near Plomari, open to the southwest."
       },
       "active": true
+    },
+    {
+      "id": "xampelia",
+      "lat": 39.24585,
+      "lon": 26.43169,
+      "facing": 45,
+      "exposure": 0.8,
+      "name": {
+        "el": "Ξαμπέλια",
+        "en": "Xampelia"
+      },
+      "area": {
+        "el": "Νέες Κυδωνίες",
+        "en": "Nees Kydonies"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στην ανατολική ακτή, απέναντι από τα μικρασιατικά παράλια — εκτεθειμένη στο μελτέμι.",
+        "en": "Beach on the east coast facing Asia Minor — exposed to the meltemi."
+      },
+      "active": true
     }
   ]
 }
