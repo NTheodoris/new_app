@@ -1125,6 +1125,29 @@
         "en": "Beach on the south coast, open to the south."
       },
       "active": true
+    },
+    {
+      "id": "melinda",
+      "lat": 38.98713,
+      "lon": 26.31328,
+      "facing": 205,
+      "exposure": 1.0,
+      "name": {
+        "el": "Μελίντα",
+        "en": "Melinda"
+      },
+      "area": {
+        "el": "Πλωμάρι",
+        "en": "Plomari"
+      },
+      "surface": null,
+      "organized": null,
+      "tags": [],
+      "desc": {
+        "el": "Παραλία στη νότια ακτή, κοντά στο Πλωμάρι, ανοιχτή προς τα νοτιοδυτικά.",
+        "en": "Beach on the south coast near Plomari, open to the southwest."
+      },
+      "active": true
     }
   ]
 }
