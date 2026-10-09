@@ -38,6 +38,7 @@ export interface HourWeather {
   waveDir: number | null;    // από πού έρχεται το κύμα (μοίρες)
   wavePeriod: number | null; // s (περίοδος κύματος)
   seaTemp: number | null;    // °C θάλασσας
+  uv: number | null;         // δείκτης UV
 }
 
 export interface SeaCondition {

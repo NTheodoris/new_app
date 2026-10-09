@@ -11,7 +11,7 @@ import { AppState } from '../services/app-state.service';
     @if (state.times().length) {
       <div class="tp">
         <div class="days" role="tablist">
-          @for (d of [0, 1, 2]; track d) {
+          @for (date of state.days(); track date; let d = $index) {
             <button role="tab" class="day" [class.on]="day() === d" [attr.aria-selected]="day() === d" (click)="setDay(d)">
               {{ dayLabel(d) }}
             </button>
@@ -32,10 +32,11 @@ import { AppState } from '../services/app-state.service';
   `,
   styles: [`
     .tp { padding: 4px 16px 6px; }
-    .days { display: flex; gap: 6px; }
+    .days { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+    .days::-webkit-scrollbar { display: none; }
     .day {
       font: inherit; font-size: 14px; font-weight: 600; color: var(--lg-muted);
-      background: transparent; border: 0; border-radius: 999px; padding: 6px 12px;
+      background: transparent; border: 0; border-radius: 999px; padding: 6px 12px; flex: none; white-space: nowrap;
     }
     .day.on { background: var(--lg-ink); color: #fff; }
     .day:focus-visible, .now:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
@@ -60,7 +61,12 @@ export class TimePickerComponent {
   hourLabel = computed(() => `${String(this.hour()).padStart(2, '0')}:00`);
 
   dayLabel(d: number) {
-    return this.state.t(d === 0 ? 'today' : d === 1 ? 'tomorrow' : 'dayAfter');
+    if (d === 0) return this.state.t('today');
+    if (d === 1) return this.state.t('tomorrow');
+    // «Κυρ 11», «Sun 11», «So. 11», «Paz 11»
+    const date = this.state.days()[d];
+    const locale = { el: 'el-GR', en: 'en-GB', de: 'de-DE', tr: 'tr-TR' }[this.state.lang()];
+    return new Date(date + 'T12:00:00Z').toLocaleDateString(locale, { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
   }
   setDay(d: number) {
     const max = this.state.times().length - 1;

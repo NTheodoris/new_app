@@ -150,7 +150,9 @@ firestore.rules              κανόνες ασφαλείας της βάσης
 
 - Θέσεις παραλιών: [EEA – Bathing Water Directive](https://marine.discomap.eea.europa.eu/arcgis/rest/services/BathingWater/BathingWater_Dyna_WM/MapServer)
 - Περιγραφές: [lesvos.com – Beaches](https://www.lesvos.com/beaches/index.html)
-- Καιρός και θάλασσα: [Open-Meteo](https://open-meteo.com) (Forecast και Marine API)
+- Καιρός και θάλασσα: [Open-Meteo](https://open-meteo.com) (Forecast και Marine API) — 7 μέρες, μαζί με δείκτη UV
+- Ηλιοβασίλεμα: υπολογίζεται στη συσκευή (αστρονομικοί τύποι, `src/app/services/sun.ts`)
+- Γαλάζιες Σημαίες: `src/app/data/blue-flags.ts` (λίστα ΕΕΠΦ 2026 — ενημέρωση κάθε Μάιο)
 - Χάρτης: [OpenFreeMap](https://openfreemap.org) (στυλ Positron, μέσω MapLibre GL) — δωρεάν, χωρίς κλειδί και χωρίς όρια,
   επιτρέπεται σε εφαρμογές. Δεδομένα © [OpenMapTiles](https://www.openmaptiles.org/) © [OpenStreetMap](https://www.openstreetmap.org/copyright).
   Αν η συσκευή δεν έχει WebGL ή το OpenFreeMap δεν απαντήσει, η εφαρμογή πέφτει στα πλακίδια του OpenStreetMap.

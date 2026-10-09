@@ -4,12 +4,15 @@ import { Geolocation } from '@capacitor/geolocation';
 import { BeachRepository, BeachSource } from './beach-repository.service';
 import { Beach, HourWeather, Lang, SeaCondition, Text } from '../models';
 import { DESC_I18N } from '../data/desc-i18n';
+import { BLUE_FLAG_IDS, BLUE_FLAG_YEAR } from '../data/blue-flags';
+import { Sunset, sunset, sunsetOverSea } from './sun';
 import { seaCondition } from './sea';
 import { DictKey, translate } from './i18n';
 
 const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 const MARINE = 'https://marine-api.open-meteo.com/v1/marine';
-const DAYS = 3;
+/** Μέρες πρόγνωσης (το κύμα του Open-Meteo φτάνει ως 8). */
+const DAYS = 7;
 /** Αν η εφαρμογή ξαναγίνει ορατή μετά από τόσο χρόνο, ξαναφορτώνεται ο καιρός. */
 const REFRESH_AFTER_MS = 30 * 60 * 1000;
 /** Μετά από τόσα λεπτά στο παρασκήνιο, ο καιρός ξαναφορτώνεται όταν ξαναβλέπουμε την εφαρμογή. */
@@ -78,6 +81,44 @@ export class AppState {
   });
 
   t = (key: DictKey) => translate(key, this.lang());
+
+  /** Η ημερομηνία (YYYY-MM-DD) της ώρας που έχει επιλέξει ο χρήστης. */
+  readonly selectedDate = computed(() => {
+    const t = this.times()[this.hourIndex()];
+    return t ? t.slice(0, 10) : new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Athens' });
+  });
+
+  /** Οι μέρες της πρόγνωσης (YYYY-MM-DD). */
+  readonly days = computed(() => [...new Set(this.times().map((t) => t.slice(0, 10)))]);
+
+  readonly blueFlagYear = BLUE_FLAG_YEAR;
+  blueFlag(b: Beach): boolean {
+    return BLUE_FLAG_IDS.has(b.id);
+  }
+
+  /** Ηλιοβασίλεμα της επιλεγμένης μέρας και αν φαίνεται πάνω από τη θάλασσα. */
+  sunsetFor(b: Beach): (Sunset & { overSea: boolean }) | null {
+    const s = sunset(this.selectedDate(), b.lat, b.lon);
+    return s ? { ...s, overSea: sunsetOverSea(b, s) } : null;
+  }
+
+  /**
+   * UV της επιλεγμένης ώρας, το μέγιστο της μέρας και οι ώρες με υψηλό UV (≥ 6), για τη συμβουλή «σκιά 12–16».
+   */
+  uvFor(beachId: string): { now: number | null; max: number; from: string | null; to: string | null } | null {
+    const all = this.hourly().get(beachId);
+    if (!all) return null;
+    const date = this.selectedDate();
+    const day = all.filter((h) => h.time.startsWith(date) && h.uv != null);
+    if (!day.length) return null;
+    const high = day.filter((h) => (h.uv ?? 0) >= 6);
+    return {
+      now: all[this.hourIndex()]?.uv ?? null,
+      max: Math.max(...day.map((h) => h.uv ?? 0)),
+      from: high.length ? high[0].time.slice(11, 16) : null,
+      to: high.length ? `${String(+high[high.length - 1].time.slice(11, 13) + 1).padStart(2, '0')}:00` : null,
+    };
+  }
 
   async init() {
     const [lang, favs] = await Promise.all([
@@ -256,7 +297,7 @@ export class AppState {
     const common = `latitude=${lats}&longitude=${lons}&forecast_days=${DAYS}&timezone=Europe%2FAthens`;
     try {
       const forecastReq = fetch(
-        `${FORECAST}?${common}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m&wind_speed_unit=kmh`,
+        `${FORECAST}?${common}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,uv_index&wind_speed_unit=kmh`,
       ).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
       // Τα θαλάσσια δεδομένα είναι προαιρετικά — αν αποτύχουν, συνεχίζουμε μόνο με τον άνεμο.
       // Το μοντέλο κύματος έχει αραιό πλέγμα και δεν έχει τιμές πάνω στη στεριά· γι' αυτό ρωτάμε
@@ -285,6 +326,7 @@ export class AppState {
           waveDir: m?.wave_direction?.[j] ?? null,
           wavePeriod: m?.wave_period?.[j] ?? null,
           seaTemp: m?.sea_surface_temperature?.[j] ?? null,
+          uv: h.uv_index?.[j] ?? null,
         })));
       });
       this.hourly.set(data);

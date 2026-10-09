@@ -17,7 +17,7 @@ import { WaterlineComponent } from './waterline.component';
     @let lang = state.lang();
     @if (kicker()) { <div class="kicker"><span class="sun"></span>{{ kicker() }}</div> }
     @if (showName()) {
-      <h2 class="name">{{ state.txt(v.beach.name) }}@if (v.favorite) {<span class="star" aria-label="★"> ★</span>}</h2>
+      <h2 class="name">{{ state.txt(v.beach.name) }}@if (state.blueFlag(v.beach)) {<span class="bf-wrap" [attr.title]="state.t('blueFlag')" [attr.aria-label]="state.t('blueFlag')"><svg class="bflag" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M3 1.5v13" stroke="#5b7385" stroke-width="1.6" stroke-linecap="round"/><path d="M3.8 2.2h9.4l-2.3 3.1 2.3 3.1H3.8z" fill="#1565c0"/></svg></span>}@if (v.favorite) {<span class="star" aria-label="★"> ★</span>}</h2>
       <div class="area">{{ state.txt(v.beach.area) }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</div>
     }
 
@@ -97,6 +97,8 @@ import { WaterlineComponent } from './waterline.component';
     .sun { width: 10px; height: 10px; border-radius: 50%; background: var(--lg-sun); box-shadow: 0 0 0 3px rgba(255,181,46,.25); }
     .name { margin: 0; font-size: 22px; font-weight: 750; letter-spacing: -0.015em; line-height: 1.15; color: var(--lg-ink); }
     .star { color: var(--lg-sun); }
+    .bf-wrap { display: inline-block; margin-left: 6px; vertical-align: 1px; }
+    .bf-wrap svg { display: block; }
     .area { font-size: 14px; color: var(--lg-muted); margin-top: 2px; }
 
     .verdict { margin-top: 12px; border-radius: 18px; padding: 12px 14px 12px; }

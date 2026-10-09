@@ -100,10 +100,10 @@ export class TipsPage {
       icon: '🌅',
       title: { el: 'Ηλιοβασίλεμα', en: 'Sunset', de: 'Sonnenuntergang', tr: "Gün batımı" },
       body: {
-        el: 'Οι δυτικές παραλίες (Πέτρα, Άναξος, Μόλυβος, Σίγρι) έχουν το καλύτερο ηλιοβασίλεμα. Φίλτρο «Ηλιοβασίλεμα» στη λίστα.',
-        en: 'West-facing beaches (Petra, Anaxos, Molyvos, Sigri) have the best sunsets. Use the "Sunset" filter in the list.',
-        de: "Die Strände im Westen (Petra, Anaxos, Molyvos, Sigri) haben die schönsten Sonnenuntergänge. Nutze den Filter „Sonnenuntergang“ in der Liste.",
-        tr: "Batıya bakan plajlarda (Petra, Anaxos, Molyvos, Sigri) en güzel gün batımları olur. Listede “Gün batımı” filtresini kullanın.",
+        el: 'Οι δυτικές παραλίες (Πέτρα, Άναξος, Μόλυβος, Σίγρι) έχουν το καλύτερο ηλιοβασίλεμα. Φίλτρο «Ηλιοβασίλεμα στη θάλασσα» στη λίστα.',
+        en: 'West-facing beaches (Petra, Anaxos, Molyvos, Sigri) have the best sunsets. Use the "Sunset over the sea" filter in the list.',
+        de: "Die Strände im Westen (Petra, Anaxos, Molyvos, Sigri) haben die schönsten Sonnenuntergänge. Nutze den Filter „Sonnenuntergang am Meer“ in der Liste.",
+        tr: "Batıya bakan plajlarda (Petra, Anaxos, Molyvos, Sigri) en güzel gün batımları olur. Listede “Denizde gün batımı” filtresini kullanın.",
       },
     },
     {

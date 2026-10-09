@@ -8,7 +8,7 @@ import { WaterlineComponent } from '../components/waterline.component';
 import { DictKey } from '../services/i18n';
 import { beaufort } from '../services/sea';
 
-type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'hotspring' | 'nudist' | 'tavern';
+type Filter = 'fav' | 'organized' | 'sand' | 'blueflag' | 'sunset' | 'family' | 'quiet' | 'snorkel' | 'hotspring' | 'nudist' | 'tavern';
 
 @Component({
   selector: 'app-list',
@@ -33,7 +33,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
         <div class="chips">
           @for (f of filterList; track f.key) {
             <button class="chip" [class.on]="filters().has(f.key)" [attr.aria-pressed]="filters().has(f.key)" (click)="toggle(f.key)">
-              {{ f.icon }} {{ state.t(f.label) }}
+              @if (f.key === 'blueflag') {<svg class="bflag" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 1.5v13" stroke="#5b7385" stroke-width="1.6" stroke-linecap="round"/><path d="M3.8 2.2h9.4l-2.3 3.1 2.3 3.1H3.8z" fill="#1565c0"/></svg>} @else { {{ f.icon }} } {{ state.t(f.label) }}
             </button>
           }
         </div>
@@ -47,7 +47,7 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
                 @if (v.sea) { <app-waterline [level]="v.sea.level" [width]="28" [height]="18" [waves]="2" [stroke]="2.6" /> }
               </span>
               <span class="txt">
-                <span class="nm">{{ state.txt(v.beach.name) }}@if (v.favorite) {<span class="star"> ★</span>}</span>
+                <span class="nm">{{ state.txt(v.beach.name) }}@if (state.blueFlag(v.beach)) {<span class="bf-wrap" [attr.aria-label]="state.t('blueFlag')"><svg class="bflag" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M3 1.5v13" stroke="#5b7385" stroke-width="1.6" stroke-linecap="round"/><path d="M3.8 2.2h9.4l-2.3 3.1 2.3 3.1H3.8z" fill="#1565c0"/></svg></span>}@if (v.favorite) {<span class="star"> ★</span>}</span>
                 <span class="ar">{{ state.txt(v.beach.area) }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</span>
               </span>
               @if (v.sea && v.weather) {
@@ -101,6 +101,11 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
     .right { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
     .vd { font-size: 14px; font-weight: 720; }
     .wd { font-size: 12px; color: var(--lg-muted); font-variant-numeric: tabular-nums; }
+    .chip .bflag { vertical-align: -2px; margin-right: 2px; }
+    .chip.on .bflag path { fill: #fff; stroke: #fff; }
+    .chip.on .bflag path:first-child { fill: none; }
+    .bf-wrap { display: inline-block; margin-left: 5px; vertical-align: -1px; }
+    .bf-wrap svg { display: block; width: 13px; height: 13px; }
     .empty { padding: 20px; color: var(--lg-muted); text-align: center; }
   `],
 })
@@ -115,6 +120,8 @@ export class ListPage {
     { key: 'fav', label: 'favorites', icon: '★' },
     { key: 'organized', label: 'organized', icon: '⛱️' },
     { key: 'sand', label: 'sand', icon: '🏖️' },
+    { key: 'blueflag', label: 'blueFlag', icon: '' },
+    { key: 'sunset', label: 'sunsetTonight', icon: '🌅' },
     { key: 'family', label: 'tag_family', icon: '👨‍👩‍👧' },
     { key: 'quiet', label: 'tag_quiet', icon: '🤫' },
     { key: 'tavern', label: 'tag_tavern', icon: '🐟' },
@@ -132,7 +139,9 @@ export class ListPage {
         if (k === 'fav' && !v.favorite) return false;
         if (k === 'organized' && !v.beach.organized) return false;
         if (k === 'sand' && v.beach.surface !== 'sand') return false;
-        if (!['fav', 'organized', 'sand'].includes(k) && !v.beach.tags.includes(k as any)) return false;
+        if (k === 'blueflag' && !this.state.blueFlag(v.beach)) return false;
+        if (k === 'sunset' && !this.state.sunsetFor(v.beach)?.overSea) return false;
+        if (!['fav', 'organized', 'sand', 'blueflag', 'sunset'].includes(k) && !v.beach.tags.includes(k as any)) return false;
       }
       return true;
     });

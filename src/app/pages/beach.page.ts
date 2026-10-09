@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { IonHeader, IonToolbar, IonContent, IonButtons, IonBackButton, IonIcon } from '@ionic/angular/standalone';
 import { AppState } from '../services/app-state.service';
 import { seaCondition } from '../services/sea';
+import { DictKey } from '../services/i18n';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
 import { TimePickerComponent } from '../components/time-picker.component';
 
@@ -42,6 +43,30 @@ import { TimePickerComponent } from '../components/time-picker.component';
           }
         }
 
+        <section class="block facts2">
+          @if (sun(); as s) {
+            <div class="f2">
+              <span class="ic" aria-hidden="true">🌅</span>
+              <div>
+                <div class="lbl">{{ state.t('sunsetLabel') }}</div>
+                <div class="val">{{ s.time }} <small [class.good]="s.overSea">· {{ state.t(s.overSea ? 'sunsetSea' : 'sunsetLand') }}</small></div>
+              </div>
+            </div>
+          }
+          @if (uv(); as u) {
+            <div class="f2">
+              <span class="ic" aria-hidden="true">☀️</span>
+              <div>
+                <div class="lbl">{{ state.t('uvLabel') }}</div>
+                <div class="val">{{ round(u.now) }} <small>· {{ state.t(uvKey(round(u.now))) }}</small></div>
+                @if (u.from) {
+                  <div class="sub">{{ state.t('uvShade') }} {{ u.from }}–{{ u.to }} · {{ state.t('uvMax') }} {{ round(u.max) }}</div>
+                }
+              </div>
+            </div>
+          }
+        </section>
+
         <section class="block">
           <h3 id="hours">{{ state.t('hoursAhead') }}</h3>
           <div class="hours" role="list">
@@ -58,6 +83,9 @@ import { TimePickerComponent } from '../components/time-picker.component';
         <section class="block">
           <p class="desc">{{ state.desc(v.beach) }}</p>
           <div class="tags">
+            @if (state.blueFlag(v.beach)) {
+              <span class="bf"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 1.5v13" stroke="#5b7385" stroke-width="1.6" stroke-linecap="round"/><path d="M3.8 2.2h9.4l-2.3 3.1 2.3 3.1H3.8z" fill="#1565c0"/></svg>{{ state.t('blueFlag') }} {{ state.blueFlagYear }}</span>
+            }
             @if (v.beach.surface) { <span>{{ state.t(v.beach.surface) }}</span> }
             @if (v.beach.organized) { <span>⛱️ {{ state.t('organized') }}</span> }
             @for (tag of v.beach.tags; track tag) {
@@ -100,6 +128,15 @@ import { TimePickerComponent } from '../components/time-picker.component';
     .desc { font-size: 16px; line-height: 1.55; margin: 0; max-width: 62ch; }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .tags span { font-size: 13px; font-weight: 600; background: var(--lg-surface); border: 1px solid var(--lg-line); border-radius: 999px; padding: 5px 11px; }
+    .facts2 { display: grid; gap: 14px; background: var(--lg-surface); border-radius: 18px; padding: 14px 16px; }
+    .f2 { display: flex; gap: 12px; align-items: flex-start; }
+    .f2 .ic { font-size: 22px; line-height: 1; margin-top: 2px; }
+    .f2 .lbl { font-size: 12px; color: var(--lg-muted); }
+    .f2 .val { font-size: 19px; font-weight: 720; font-variant-numeric: tabular-nums; }
+    .f2 .val small { font-size: 14px; font-weight: 550; color: var(--lg-muted); }
+    .f2 .val small.good { color: var(--lv0-ink); }
+    .f2 .sub { font-size: 13px; color: var(--lg-ink); margin-top: 1px; }
+    .tags span.bf { display: inline-flex; align-items: center; gap: 5px; color: #0d47a1; border-color: #bcd3f0; background: #eef4fc; }
     .note { font-size: 12px; color: var(--lg-muted); margin: 22px 16px 24px; line-height: 1.45; }
   `],
 })
@@ -122,6 +159,27 @@ export class BeachPage {
       level: seaCondition(v.beach, w).level,
     }));
   });
+
+  sun = computed(() => {
+    const v = this.view();
+    this.state.selectedDate();
+    return v ? this.state.sunsetFor(v.beach) : null;
+  });
+
+  uv = computed(() => {
+    const v = this.view();
+    this.state.hourIndex();
+    return v ? this.state.uvFor(v.beach.id) : null;
+  });
+
+  round(x: number | null) {
+    return Math.round(x ?? 0);
+  }
+
+  uvKey(x: number) {
+    const i = x < 3 ? 0 : x < 6 ? 1 : x < 8 ? 2 : x < 11 ? 3 : 4;
+    return ('uv' + i) as DictKey;
+  }
 
   best = computed(() => {
     const v = this.view();
