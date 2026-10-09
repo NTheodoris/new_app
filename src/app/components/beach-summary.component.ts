@@ -17,8 +17,8 @@ import { WaterlineComponent } from './waterline.component';
     @let lang = state.lang();
     @if (kicker()) { <div class="kicker"><span class="sun"></span>{{ kicker() }}</div> }
     @if (showName()) {
-      <h2 class="name">{{ v.beach.name[lang] }}@if (v.favorite) {<span class="star" aria-label="★"> ★</span>}</h2>
-      <div class="area">{{ v.beach.area[lang] }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</div>
+      <h2 class="name">{{ state.txt(v.beach.name) }}@if (v.favorite) {<span class="star" aria-label="★"> ★</span>}</h2>
+      <div class="area">{{ state.txt(v.beach.area) }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</div>
     }
 
     @if (v.sea && v.weather; as w) {
@@ -41,7 +41,7 @@ import { WaterlineComponent } from './waterline.component';
       @if (alt(); as a) {
         <button class="alt" (click)="go(a.view.beach.id)">
           <span>{{ state.t('goInstead') }}:</span>
-          <strong>{{ a.view.beach.name[lang] }}</strong>
+          <strong>{{ state.txt(a.view.beach.name) }}</strong>
           <span class="km">{{ a.km.toFixed(0) }} {{ state.t('km') }}</span>
         </button>
       }
@@ -180,7 +180,7 @@ export class BeachSummaryComponent {
 
   num(x: number) {
     const s = x.toFixed(1);
-    return this.state.lang() === 'el' ? s.replace('.', ',') : s;
+    return this.state.lang() === 'en' ? s : s.replace('.', ',');
   }
 
   go(id: string) {

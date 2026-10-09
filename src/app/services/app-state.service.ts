@@ -2,7 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Geolocation } from '@capacitor/geolocation';
 import { BeachRepository, BeachSource } from './beach-repository.service';
-import { Beach, HourWeather, Lang, SeaCondition } from '../models';
+import { Beach, HourWeather, Lang, SeaCondition, Text } from '../models';
+import { DESC_I18N } from '../data/desc-i18n';
 import { seaCondition } from './sea';
 import { DictKey, translate } from './i18n';
 
@@ -83,8 +84,14 @@ export class AppState {
       Preferences.get({ key: 'lang' }),
       Preferences.get({ key: 'favorites' }),
     ]);
-    if (lang.value === 'en' || lang.value === 'el') this.lang.set(lang.value);
-    else if (!navigator.language?.startsWith('el')) this.lang.set('en');
+    const saved = lang.value as Lang | null;
+    if (saved && ['el', 'en', 'de', 'tr'].includes(saved)) this.lang.set(saved);
+    else {
+      // Πρώτη φορά: η γλώσσα του κινητού, αν την έχουμε· αλλιώς αγγλικά.
+      const nav = (navigator.language || '').slice(0, 2).toLowerCase();
+      this.lang.set((['el', 'de', 'tr'].includes(nav) ? nav : 'en') as Lang);
+    }
+    document.documentElement.lang = this.lang();
     if (favs.value) this.favorites.set(new Set(JSON.parse(favs.value)));
     this.locate(false);
     this.hookResume();
@@ -194,10 +201,23 @@ export class AppState {
     return this.hourly().get(beachId) ?? [];
   }
 
-  toggleLang() {
-    const next: Lang = this.lang() === 'el' ? 'en' : 'el';
+  setLang(next: Lang) {
     this.lang.set(next);
+    document.documentElement.lang = next;
     Preferences.set({ key: 'lang', value: next });
+  }
+
+  /** Κείμενο δεδομένων στη γλώσσα του χρήστη (γερμανικά/τουρκικά → αγγλικά αν λείπουν). */
+  txt(t: Text): string {
+    const l = this.lang();
+    return t[l] || t.en || t.el;
+  }
+
+  /** Περιγραφή παραλίας, με τις έτοιμες γερμανικές/τουρκικές μεταφράσεις. */
+  desc(b: Beach): string {
+    const l = this.lang();
+    if (l === 'de' || l === 'tr') return b.desc[l] || DESC_I18N[b.desc.en]?.[l] || b.desc.en;
+    return b.desc[l];
   }
 
   toggleFavorite(id: string) {

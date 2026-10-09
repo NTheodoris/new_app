@@ -250,7 +250,7 @@ export class MapPage implements OnDestroy {
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],
       });
-      L.marker([v.beach.lat, v.beach.lon], { icon, title: v.beach.name[this.state.lang()], zIndexOffset: isSel ? 1000 : 0 })
+      L.marker([v.beach.lat, v.beach.lon], { icon, title: this.state.txt(v.beach.name), zIndexOffset: isSel ? 1000 : 0 })
         .on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           this.selectedId.set(v.beach.id);

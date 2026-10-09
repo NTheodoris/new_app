@@ -1,4 +1,4 @@
-import { Beach, HourWeather, SeaCondition, SeaLevel } from '../models';
+import { Beach, HourWeather, Lang, SeaCondition, SeaLevel } from '../models';
 
 /** Μικρότερη γωνιακή διαφορά δύο κατευθύνσεων (0..180). */
 export function angleDiff(a: number, b: number): number {
@@ -14,17 +14,26 @@ export function beaufort(kmh: number): number {
 
 const COMPASS_EL = ['Β', 'ΒΑ', 'Α', 'ΝΑ', 'Ν', 'ΝΔ', 'Δ', 'ΒΔ'];
 const COMPASS_EN = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-export function compass(deg: number, lang: 'el' | 'en'): string {
+const COMPASS_DE = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
+const COMPASS_TR = ['K', 'KD', 'D', 'GD', 'G', 'GB', 'B', 'KB'];
+const COMPASS: Record<Lang, string[]> = { el: COMPASS_EL, en: COMPASS_EN, de: COMPASS_DE, tr: COMPASS_TR };
+
+export function compass(deg: number, lang: Lang): string {
   const i = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
-  return (lang === 'el' ? COMPASS_EL : COMPASS_EN)[i];
+  return COMPASS[lang][i];
 }
 
 const WORDS_EL = ['βόρεια', 'βορειοανατολικά', 'ανατολικά', 'νοτιοανατολικά', 'νότια', 'νοτιοδυτικά', 'δυτικά', 'βορειοδυτικά'];
 const WORDS_EN = ['the north', 'the northeast', 'the east', 'the southeast', 'the south', 'the southwest', 'the west', 'the northwest'];
 /** Η κατεύθυνση με λέξεις («βορειοδυτικά», «the northwest»), για να τη διαβάζει εύκολα ο τουρίστας. */
-export function compassWord(deg: number, lang: 'el' | 'en'): string {
+// Γερμανικά: «aus Nordosten». Τουρκικά: η λέξη έχει ήδη το «από» (κατάληξη -den/-dan).
+const WORDS_DE = ['Norden', 'Nordosten', 'Osten', 'Südosten', 'Süden', 'Südwesten', 'Westen', 'Nordwesten'];
+const WORDS_TR = ['kuzeyden', 'kuzeydoğudan', 'doğudan', 'güneydoğudan', 'güneyden', 'güneybatıdan', 'batıdan', 'kuzeybatıdan'];
+const WORDS: Record<Lang, string[]> = { el: WORDS_EL, en: WORDS_EN, de: WORDS_DE, tr: WORDS_TR };
+
+export function compassWord(deg: number, lang: Lang): string {
   const i = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
-  return (lang === 'el' ? WORDS_EL : WORDS_EN)[i];
+  return WORDS[lang][i];
 }
 
 /** Λέξη για την ένταση του ανέμου, με βάση τα μποφόρ. «meltemi» = δυνατός βοριάς/βορειοανατολικός το καλοκαίρι. */

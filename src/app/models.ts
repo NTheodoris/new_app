@@ -1,5 +1,6 @@
-export type Lang = 'el' | 'en';
-export type Text = Record<Lang, string>;
+export type Lang = 'el' | 'en' | 'de' | 'tr';
+/** Κείμενα δεδομένων (παραλίες): πάντα ελληνικά και αγγλικά· γερμανικά/τουρκικά προαιρετικά. */
+export type Text = { el: string; en: string; de?: string; tr?: string };
 
 export type Surface = 'sand' | 'pebbles' | 'mixed';
 export type Tag =

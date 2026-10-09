@@ -56,7 +56,7 @@ import { TimePickerComponent } from '../components/time-picker.component';
         </section>
 
         <section class="block">
-          <p class="desc">{{ v.beach.desc[lang] }}</p>
+          <p class="desc">{{ state.desc(v.beach) }}</p>
           <div class="tags">
             @if (v.beach.surface) { <span>{{ state.t(v.beach.surface) }}</span> }
             @if (v.beach.organized) { <span>⛱️ {{ state.t('organized') }}</span> }

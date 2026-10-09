@@ -47,8 +47,8 @@ type Filter = 'fav' | 'organized' | 'sand' | 'family' | 'quiet' | 'snorkel' | 'h
                 @if (v.sea) { <app-waterline [level]="v.sea.level" [width]="28" [height]="18" [waves]="2" [stroke]="2.6" /> }
               </span>
               <span class="txt">
-                <span class="nm">{{ v.beach.name[state.lang()] }}@if (v.favorite) {<span class="star"> ★</span>}</span>
-                <span class="ar">{{ v.beach.area[state.lang()] }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</span>
+                <span class="nm">{{ state.txt(v.beach.name) }}@if (v.favorite) {<span class="star"> ★</span>}</span>
+                <span class="ar">{{ state.txt(v.beach.area) }}@if (v.distanceKm != null) {, {{ v.distanceKm.toFixed(0) }} {{ state.t('km') }}}</span>
               </span>
               @if (v.sea && v.weather) {
                 <span class="right">
