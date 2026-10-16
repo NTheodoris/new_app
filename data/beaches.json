@@ -663,7 +663,7 @@
       "id": "tampakariou",
       "lat": 39.0477,
       "lon": 26.5018,
-      "facing": 260,
+      "facing": 80,
       "exposure": 0.3,
       "name": {
         "el": "Ταμπακαριού – Σουρλάγκα",
@@ -686,7 +686,7 @@
       "id": "chalatses",
       "lat": 39.0516,
       "lon": 26.4958,
-      "facing": 260,
+      "facing": 80,
       "exposure": 0.3,
       "name": {
         "el": "Χαλάτσες",
@@ -709,7 +709,7 @@
       "id": "apidias",
       "lat": 39.0559,
       "lon": 26.4931,
-      "facing": 260,
+      "facing": 80,
       "exposure": 0.3,
       "name": {
         "el": "Απηδιάς – Λάκκος",
