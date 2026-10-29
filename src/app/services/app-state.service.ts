@@ -20,6 +20,17 @@ const STALE_MIN = 30;
 
 export type Theme = 'auto' | 'light' | 'dark';
 
+/** Σημεία ενός πλέγματος πάνω από τη Λέσβο και τη θάλασσα γύρω της, για τα βελάκια του ανέμου. */
+export const WIND_GRID: { lat: number; lon: number }[] = (() => {
+  const pts: { lat: number; lon: number }[] = [];
+  for (let lat = 38.92; lat <= 39.46; lat += 0.09) {
+    for (let lon = 25.78; lon <= 26.72; lon += 0.13) pts.push({ lat: +lat.toFixed(3), lon: +lon.toFixed(3) });
+  }
+  return pts;
+})();
+
+export interface WindArrow { lat: number; lon: number; speed: number; dir: number }
+
 export interface BeachView {
   beach: Beach;
   weather: HourWeather | null;
@@ -38,6 +49,8 @@ export class AppState {
   readonly lang = signal<Lang>('el');
   /** Θέμα: «auto» = όπως το κινητό. */
   readonly theme = signal<Theme>('auto');
+  /** Βελάκια ανέμου στον χάρτη (ναι/όχι). */
+  readonly showWind = signal(true);
   private readonly systemDark = signal(
     typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches,
   );
@@ -49,6 +62,17 @@ export class AppState {
   readonly error = signal(false);
   /** Ωριαία πρόγνωση ανά παραλία (κλειδί: id παραλίας). */
   private readonly hourly = signal<Map<string, HourWeather[]>>(new Map());
+  /** Άνεμος στο πλέγμα: για κάθε σημείο, ωριαία [ταχύτητα, κατεύθυνση]. */
+  private readonly windGrid = signal<[number, number][][]>([]);
+  /** Βελάκια ανέμου για την επιλεγμένη ώρα. */
+  readonly windArrows = computed<WindArrow[]>(() => {
+    const grid = this.windGrid();
+    const i = this.hourIndex();
+    return grid.flatMap((series, k) => {
+      const v = series[i];
+      return v ? [{ ...WIND_GRID[k], speed: v[0], dir: v[1] }] : [];
+    });
+  });
   readonly times = computed(() => this.hourly().values().next().value?.map((h) => h.time) ?? []);
   /** Επιλεγμένη ώρα (δείκτης στον πίνακα ωρών). */
   readonly hourIndex = signal(0);
@@ -134,6 +158,7 @@ export class AppState {
       Preferences.get({ key: 'favorites' }),
       Preferences.get({ key: 'theme' }),
     ]);
+    Preferences.get({ key: 'showWind' }).then((w) => w.value === 'no' && this.showWind.set(false));
     if (theme.value === 'light' || theme.value === 'dark') this.theme.set(theme.value);
     window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', (e) => {
       this.systemDark.set(e.matches);
@@ -257,6 +282,12 @@ export class AppState {
     return this.hourly().get(beachId) ?? [];
   }
 
+  toggleWind() {
+    const next = !this.showWind();
+    this.showWind.set(next);
+    Preferences.set({ key: 'showWind', value: next ? 'yes' : 'no' });
+  }
+
   setTheme(next: Theme) {
     this.theme.set(next);
     Preferences.set({ key: 'theme', value: next });
@@ -336,7 +367,19 @@ export class AppState {
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
 
-      const [fc, mar] = await Promise.all([forecastReq, marineReq]);
+      // Άνεμος σε πλέγμα για τα βελάκια του χάρτη — προαιρετικό.
+      const gridReq = fetch(
+        `${FORECAST}?latitude=${WIND_GRID.map((p) => p.lat).join(',')}&longitude=${WIND_GRID.map((p) => p.lon).join(',')}` +
+          `&forecast_days=${DAYS}&timezone=Europe%2FAthens&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh`,
+      )
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+
+      const [fc, mar, grid] = await Promise.all([forecastReq, marineReq, gridReq]);
+      if (grid) {
+        const list: any[] = Array.isArray(grid) ? grid : [grid];
+        this.windGrid.set(list.map((g) => (g.hourly.time as string[]).map((_, j) => [g.hourly.wind_speed_10m[j] ?? 0, g.hourly.wind_direction_10m[j] ?? 0] as [number, number])));
+      }
       const fcList: any[] = Array.isArray(fc) ? fc : [fc];
       const marList: any[] | null = mar ? (Array.isArray(mar) ? mar : [mar]) : null;
 

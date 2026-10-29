@@ -157,6 +157,9 @@ ion-tab-button { font-size: 12px; }
   background: var(--lg-sun); color: #fff; font-size: 9px; line-height: 14px; text-align: center;
   box-shadow: 0 0 0 1.5px #fff;
 }
+.wind-icon { display: grid; place-items: center; color: var(--lg-sea); }
+.wind-icon .warrow { display: block; filter: drop-shadow(0 0 1.5px var(--lg-foam)); }
+.wind-icon .wdot { width: 4px; height: 4px; border-radius: 50%; background: var(--lg-ink); opacity: .35; }
 .leaflet-container { font-family: var(--ion-font-family); background: #cfe6ee; }
 .leaflet-control-attribution { font-size: 10px; line-height: 1.5; background: rgba(255,255,255,.8) !important; }
 .leaflet-control-attribution a { color: var(--lg-muted); }

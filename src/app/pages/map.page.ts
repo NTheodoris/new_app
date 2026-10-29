@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import { maplibreGL } from '@maplibre/maplibre-gl-leaflet';
 import { AppState, BeachView } from '../services/app-state.service';
 import { waveGlyph } from '../services/waterline';
+import { beaufort } from '../services/sea';
 import { SeaLevel } from '../models';
 import { TimePickerComponent } from '../components/time-picker.component';
 import { BeachSummaryComponent } from '../components/beach-summary.component';
@@ -42,6 +43,12 @@ import { AppHeaderComponent } from '../components/app-header.component';
         </div>
       }
 
+      <button class="windbtn" [class.on]="state.showWind()" (click)="state.toggleWind()"
+        [attr.aria-pressed]="state.showWind()" [attr.aria-label]="state.t('windArrows')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>
+        {{ state.t('windArrows') }}
+      </button>
+
       <ion-fab vertical="bottom" horizontal="end" slot="fixed" [class.raised]="!!card()">
         <ion-fab-button size="small" color="light" (click)="locate()" [attr.aria-label]="state.t('locate')">
           <ion-icon name="locate" />
@@ -68,8 +75,15 @@ import { AppHeaderComponent } from '../components/app-header.component';
     }
     .lg { display: inline-flex; align-items: center; gap: 5px; }
     .lg i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; }
+    .windbtn {
+      position: absolute; top: 76px; left: 10px; z-index: 500; display: inline-flex; align-items: center; gap: 6px;
+      font: inherit; font-size: 12px; font-weight: 650; color: var(--lg-muted); background: var(--lg-glass);
+      border: 1px solid var(--lg-line); border-radius: 999px; padding: 5px 11px; box-shadow: 0 1px 6px var(--lg-shadow);
+    }
+    .windbtn.on { color: var(--lg-sea); border-color: var(--lg-sea); }
+    .windbtn:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
     .status {
-      position: absolute; top: 52px; left: 10px; z-index: 600; background: var(--lg-surface); color: var(--lg-ink);
+      position: absolute; top: 112px; left: 10px; z-index: 600; background: var(--lg-surface); color: var(--lg-ink);
       padding: 8px 12px; border-radius: 14px; display: flex; gap: 8px; align-items: center; max-width: calc(100% - 20px);
       font-size: 14px; box-shadow: 0 1px 6px rgba(10,53,80,.18);
     }
@@ -119,6 +133,7 @@ export class MapPage implements OnDestroy {
   private setMapDark?: (dark: boolean) => void;
   private layer = L.layerGroup();
   private meLayer = L.layerGroup();
+  private windLayer = L.layerGroup();
 
   constructor() {
     effect(() => this.drawMarkers(this.state.views(), this.card()?.beach.id ?? null));
@@ -129,6 +144,11 @@ export class MapPage implements OnDestroy {
         this.updateSheetHeight();
         if (this.selectedId()) this.keepSelectedVisible();
       }, 0);
+    });
+    effect(() => {
+      this.state.windArrows();
+      this.state.showWind();
+      this.drawWind();
     });
     effect(() => {
       const dark = this.state.isDark();
@@ -150,6 +170,13 @@ export class MapPage implements OnDestroy {
       this.addBaseMap(this.map);
       this.layer.addTo(this.map);
       this.meLayer.addTo(this.map);
+      // Τα βελάκια του ανέμου σε δικό τους επίπεδο, κάτω από τις παραλίες.
+      this.map.createPane('wind');
+      const pane = this.map.getPane('wind')!;
+      pane.style.zIndex = '450';
+      pane.style.pointerEvents = 'none';
+      this.windLayer.addTo(this.map);
+      this.drawWind();
       this.map.on('click', () => this.selectedId.set(null));
       this.drawMarkers(this.state.views(), this.card()?.beach.id ?? null);
     }
@@ -274,6 +301,34 @@ export class MapPage implements OnDestroy {
           this.selectedId.set(v.beach.id);
         })
         .addTo(this.layer);
+    }
+  }
+
+  /**
+   * Βελάκια ανέμου: δείχνουν προς τα πού πάει ο αέρας. Όσο πιο δυνατός, τόσο πιο μεγάλο και έντονο.
+   * Με άπνοια (< 6 km/h) δείχνουμε μόνο μια μικρή τελεία.
+   */
+  private drawWind() {
+    this.windLayer.clearLayers();
+    if (!this.map || !this.state.showWind()) return;
+    for (const a of this.state.windArrows()) {
+      const bf = beaufort(a.speed);
+      let html: string;
+      if (a.speed < 6) {
+        html = '<span class="wdot"></span>';
+      } else {
+        const len = Math.min(32, 14 + bf * 3);
+        const to = (a.dir + 180) % 360; // ο άνεμος «από» → το βελάκι δείχνει «προς»
+        const op = Math.min(0.7, 0.3 + bf * 0.06);
+        html = `<svg class="warrow" width="${len}" height="${len}" viewBox="0 0 24 24" style="transform:rotate(${to}deg);opacity:${op}">` +
+          `<path d="M12 21V4M6 9.5 12 3.5l6 6" fill="none" stroke="currentColor" stroke-width="${bf >= 6 ? 2.6 : 2}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      }
+      L.marker([a.lat, a.lon], {
+        pane: 'wind',
+        interactive: false,
+        keyboard: false,
+        icon: L.divIcon({ className: 'wind-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] }),
+      }).addTo(this.windLayer);
     }
   }
 

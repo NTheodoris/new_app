@@ -58,6 +58,7 @@ const DICT = {
   km: { el: 'χλμ.', en: 'km' },
   bft: { el: 'μποφόρ', en: 'Bft' },
   privacy: { el: 'Πολιτική απορρήτου', en: 'Privacy policy' },
+  windArrows: { el: 'Άνεμος', en: 'Wind' },
   theme: { el: "Εμφάνιση", en: "Appearance" },
   themeAuto: { el: "Αυτόματα (όπως το κινητό)", en: "Automatic (like your phone)" },
   themeLight: { el: "Ανοιχτό", en: "Light" },
@@ -114,6 +115,7 @@ export type DictKey = keyof typeof DICT;
 
 /** Γερμανικά. */
 const DE: Record<DictKey, string> = {
+  windArrows: "Wind",
   theme: "Darstellung",
   themeAuto: "Automatisch (wie das Handy)",
   themeLight: "Hell",
@@ -216,6 +218,7 @@ const DE: Record<DictKey, string> = {
 
 /** Τουρκικά. */
 const TR: Record<DictKey, string> = {
+  windArrows: "Rüzgâr",
   theme: "Görünüm",
   themeAuto: "Otomatik (telefondaki gibi)",
   themeLight: "Açık",
