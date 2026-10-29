@@ -93,7 +93,7 @@ import { WaterlineComponent } from './waterline.component';
     :host(.compact) .actions ion-button { height: 38px; font-size: 14px; }
     .factline { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: 13px; color: var(--lg-muted); }
     .factline b { color: var(--lg-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
-    .kicker { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; color: #8a5a00; margin-bottom: 4px; }
+    .kicker { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; color: var(--lg-kicker); margin-bottom: 4px; }
     .sun { width: 10px; height: 10px; border-radius: 50%; background: var(--lg-sun); box-shadow: 0 0 0 3px rgba(255,181,46,.25); }
     .name { margin: 0; font-size: 22px; font-weight: 750; letter-spacing: -0.015em; line-height: 1.15; color: var(--lg-ink); }
     .star { color: var(--lg-sun); }
@@ -109,7 +109,7 @@ import { WaterlineComponent } from './waterline.component';
     .advice { margin: 4px 0 0; font-size: 15px; font-weight: 520; color: var(--lg-ink); line-height: 1.35; }
     .why { margin: 3px 0 0; font-size: 13px; color: var(--lg-muted); line-height: 1.35; }
 
-    .warn { margin: 10px 0 0; font-size: 13px; line-height: 1.4; background: #fff1df; color: #7a4300; padding: 9px 12px; border-radius: 12px; }
+    .warn { margin: 10px 0 0; font-size: 13px; line-height: 1.4; background: var(--lg-warn-bg); color: var(--lg-warn-fg); padding: 9px 12px; border-radius: 12px; }
     .alt {
       display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; width: 100%; text-align: left;
       margin-top: 10px; font: inherit; font-size: 14px; color: var(--lv0-ink);

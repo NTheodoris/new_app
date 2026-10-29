@@ -38,7 +38,7 @@ import { AppState } from '../services/app-state.service';
       font: inherit; font-size: 14px; font-weight: 600; color: var(--lg-muted);
       background: transparent; border: 0; border-radius: 999px; padding: 6px 12px; flex: none; white-space: nowrap;
     }
-    .day.on { background: var(--lg-ink); color: #fff; }
+    .day.on { background: var(--lg-pill-bg); color: var(--lg-pill-fg); }
     .day:focus-visible, .now:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
     .row { display: flex; align-items: center; gap: 10px; height: 40px; }
     .hour { font-weight: 750; font-size: 17px; font-variant-numeric: tabular-nums; min-width: 50px; color: var(--lg-ink); }

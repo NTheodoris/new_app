@@ -63,7 +63,7 @@ import { AppHeaderComponent } from '../components/app-header.component';
     .map { position: absolute; inset: 0; }
     .legend {
       position: absolute; top: 34px; left: 10px; right: 10px; z-index: 500; display: flex; gap: 12px; flex-wrap: wrap;
-      width: fit-content; background: rgba(255,255,255,.94); border-radius: 999px; padding: 6px 12px;
+      width: fit-content; background: var(--lg-glass); border-radius: 999px; padding: 6px 12px;
       font-size: 12px; font-weight: 600; color: var(--lg-ink); box-shadow: 0 1px 6px rgba(10,53,80,.18);
     }
     .lg { display: inline-flex; align-items: center; gap: 5px; }
@@ -166,7 +166,10 @@ export class MapPage implements OnDestroy {
     try {
       const canvas = document.createElement('canvas');
       if (!(canvas.getContext('webgl2') || canvas.getContext('webgl'))) throw new Error('no webgl');
-      const gl = maplibreGL({ style: 'https://tiles.openfreemap.org/styles/positron' } as any).addTo(map);
+      // Σκούρο χάρτη όταν το κινητό είναι σε dark mode.
+      const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+      const style = `https://tiles.openfreemap.org/styles/${dark ? 'dark' : 'positron'}`;
+      const gl = maplibreGL({ style } as any).addTo(map);
       const credit =
         '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> · <a href="https://www.openmaptiles.org/" target="_blank">© OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>';
       this.attribution?.addAttribution(credit);
@@ -176,7 +179,7 @@ export class MapPage implements OnDestroy {
         loaded = true;
         // Πιο «θαλασσινό» μπλε για το νερό, στα χρώματα της εφαρμογής.
         for (const layer of m.getStyle().layers ?? []) {
-          if (layer.type === 'fill' && /water/.test(layer.id)) m.setPaintProperty(layer.id, 'fill-color', '#b7dbe7');
+          if (layer.type === 'fill' && /water/.test(layer.id)) m.setPaintProperty(layer.id, 'fill-color', dark ? '#0f2f40' : '#b7dbe7');
         }
       });
       // Αν μέσα σε 20" δεν έχει φορτώσει το στυλ (π.χ. πρόβλημα στον πάροχο), δείχνουμε OSM.

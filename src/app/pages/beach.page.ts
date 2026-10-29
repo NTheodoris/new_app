@@ -136,7 +136,7 @@ import { TimePickerComponent } from '../components/time-picker.component';
     .f2 .val small { font-size: 14px; font-weight: 550; color: var(--lg-muted); }
     .f2 .val small.good { color: var(--lv0-ink); }
     .f2 .sub { font-size: 13px; color: var(--lg-ink); margin-top: 1px; }
-    .tags span.bf { display: inline-flex; align-items: center; gap: 5px; color: #0d47a1; border-color: #bcd3f0; background: #eef4fc; }
+    .tags span.bf { display: inline-flex; align-items: center; gap: 5px; color: var(--lg-flag-fg); border-color: var(--lg-flag-line); background: var(--lg-flag-bg); }
     .note { font-size: 12px; color: var(--lg-muted); margin: 22px 16px 24px; line-height: 1.45; }
   `],
 })
