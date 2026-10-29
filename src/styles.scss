@@ -6,7 +6,7 @@
 @import '@ionic/angular/css/padding.css';
 @import '@ionic/angular/css/flex-utils.css';
 @import '@ionic/angular/css/display.css';
-@import '@ionic/angular/css/palettes/dark.system.css';
+@import '@ionic/angular/css/palettes/dark.class.css';
 
 /*
  * LesvosGo — θέμα
@@ -68,59 +68,57 @@
 }
 
 /*
- * Σκούρο θέμα: ενεργοποιείται μόνο του όταν το κινητό είναι σε dark mode.
+ * Σκούρο θέμα: ενεργό όταν το <html> έχει την κλάση ion-palette-dark (τη βάζει το AppState:
+ * αυτόματα όπως το κινητό, ή ό,τι διάλεξε ο χρήστης).
  * Νυχτερινή θάλασσα: βαθύ μπλε-μαύρο φόντο, πιο φωτεινά χρώματα για κείμενο ώστε να διαβάζονται.
  */
-@media (prefers-color-scheme: dark) {
-  /* και στο body, γιατί εκεί βάζει τις δικές του τιμές το σκούρο θέμα του Ionic */
-  :root, .ios body, .md body {
-    --lg-ink: #e6f0f5;
-    --lg-muted: #93a9b8;
-    --lg-sea: #2f95d8;
-    --lg-lagoon: #3cc6dd;
-    --lg-foam: #0a1820;
-    --lg-surface: #12242e;
-    --lg-line: #23404d;
-    --lg-pill-bg: #e6f0f5;
-    --lg-pill-fg: #0a1820;
-    --lg-glass: rgba(18,36,46,.92);
-    --lg-kicker: #f2c25a;
-    --lg-warn-bg: #3a2810; --lg-warn-fg: #ffc98a;
-    --lg-flag-fg: #8cc2ff; --lg-flag-bg: #13294a; --lg-flag-line: #24497a;
-    --lg-shadow: rgba(0,0,0,.45);
-    color-scheme: dark;
+:root.ion-palette-dark {
+  --lg-ink: #e6f0f5;
+  --lg-muted: #93a9b8;
+  --lg-sea: #2f95d8;
+  --lg-lagoon: #3cc6dd;
+  --lg-foam: #0a1820;
+  --lg-surface: #12242e;
+  --lg-line: #23404d;
+  --lg-pill-bg: #e6f0f5;
+  --lg-pill-fg: #0a1820;
+  --lg-glass: rgba(18,36,46,.92);
+  --lg-kicker: #f2c25a;
+  --lg-warn-bg: #3a2810; --lg-warn-fg: #ffc98a;
+  --lg-flag-fg: #8cc2ff; --lg-flag-bg: #13294a; --lg-flag-line: #24497a;
+  --lg-shadow: rgba(0,0,0,.45);
+  color-scheme: dark;
 
-    --lv0-ink: #4fd6ad; --lv0-tint: #0f2e27;
-    --lv1-ink: #f2cd52; --lv1-tint: #2d2710;
-    --lv2-ink: #ff9d5c; --lv2-tint: #33200f;
-    --lv3-ink: #ff8080; --lv3-tint: #361819;
+  --lv0-ink: #4fd6ad; --lv0-tint: #0f2e27;
+  --lv1-ink: #f2cd52; --lv1-tint: #2d2710;
+  --lv2-ink: #ff9d5c; --lv2-tint: #33200f;
+  --lv3-ink: #ff8080; --lv3-tint: #361819;
 
-    --ion-background-color: var(--lg-foam);
-    --ion-background-color-rgb: 10, 24, 32;
-    --ion-text-color: var(--lg-ink);
-    --ion-text-color-rgb: 230, 240, 245;
-    --ion-toolbar-background: var(--lg-foam);
-    --ion-toolbar-color: var(--lg-ink);
-    --ion-tab-bar-background: var(--lg-surface);
-    --ion-tab-bar-color: var(--lg-muted);
-    --ion-tab-bar-color-selected: #5ab4ee;
-    --ion-tab-bar-border-color: var(--lg-line);
-    --ion-item-background: var(--lg-surface);
-    --ion-border-color: var(--lg-line);
-    --ion-overlay-background-color: var(--lg-surface);
-    --ion-color-primary: #2f95d8;
-    --ion-color-primary-rgb: 47, 149, 216;
-    --ion-color-primary-contrast: #ffffff;
-    --ion-color-primary-contrast-rgb: 255, 255, 255;
-    --ion-color-primary-shade: #2983be;
-    --ion-color-primary-tint: #44a0dc;
-    --ion-color-light: #1b3340;
-    --ion-color-light-rgb: 27, 51, 64;
-    --ion-color-light-contrast: #e6f0f5;
-    --ion-color-light-contrast-rgb: 230, 240, 245;
-    --ion-color-light-shade: #172c38;
-    --ion-color-light-tint: #22404f;
-  }
+  --ion-background-color: var(--lg-foam);
+  --ion-background-color-rgb: 10, 24, 32;
+  --ion-text-color: var(--lg-ink);
+  --ion-text-color-rgb: 230, 240, 245;
+  --ion-toolbar-background: var(--lg-foam);
+  --ion-toolbar-color: var(--lg-ink);
+  --ion-tab-bar-background: var(--lg-surface);
+  --ion-tab-bar-color: var(--lg-muted);
+  --ion-tab-bar-color-selected: #5ab4ee;
+  --ion-tab-bar-border-color: var(--lg-line);
+  --ion-item-background: var(--lg-surface);
+  --ion-border-color: var(--lg-line);
+  --ion-overlay-background-color: var(--lg-surface);
+  --ion-color-primary: #2f95d8;
+  --ion-color-primary-rgb: 47, 149, 216;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #2983be;
+  --ion-color-primary-tint: #44a0dc;
+  --ion-color-light: #1b3340;
+  --ion-color-light-rgb: 27, 51, 64;
+  --ion-color-light-contrast: #e6f0f5;
+  --ion-color-light-contrast-rgb: 230, 240, 245;
+  --ion-color-light-shade: #172c38;
+  --ion-color-light-tint: #22404f;
 }
 
 body { font-feature-settings: 'tnum' 0; -webkit-font-smoothing: antialiased; }
@@ -164,8 +162,6 @@ ion-tab-button { font-size: 12px; }
 .leaflet-control-attribution a { color: var(--lg-muted); }
 
 /* Σκούρο θέμα: κανόνες που πρέπει να έρθουν μετά τους κανονικούς */
-@media (prefers-color-scheme: dark) {
-  .leaflet-container { background: #0f2633; }
-  .leaflet-control-attribution { background: rgba(10,24,32,.8) !important; color: var(--lg-muted); }
-  .leaflet-control-attribution a { color: var(--lg-muted); }
-}
+.ion-palette-dark .leaflet-container { background: #0f2633; }
+.ion-palette-dark .leaflet-control-attribution { background: rgba(10,24,32,.8) !important; color: var(--lg-muted); }
+.ion-palette-dark .leaflet-control-attribution a { color: var(--lg-muted); }

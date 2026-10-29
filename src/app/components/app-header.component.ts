@@ -17,10 +17,19 @@ import { AppState } from '../services/app-state.service';
           } @else {
             <h1 class="brand"><img src="icons/icon-192.png" alt="" width="30" height="30" />LesvosGo</h1>
           }
+          <div class="tools">
+          <button class="lang icon" (click)="pickTheme()" [attr.aria-label]="state.t('theme')">
+            @if (state.isDark()) {
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+            } @else {
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>
+            }
+          </button>
           <button class="lang" (click)="pickLang()" [attr.aria-label]="state.t('language')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>
             {{ current() }}
           </button>
+          </div>
         </div>
       </ion-toolbar>
       <ng-content />
@@ -37,6 +46,8 @@ import { AppState } from '../services/app-state.service';
       background: var(--lg-surface); border: 1px solid var(--lg-line); border-radius: 999px;
       min-width: 44px; height: 32px; padding: 0 12px 0 10px; display: inline-flex; align-items: center; gap: 6px;
     }
+    .tools { display: flex; gap: 8px; }
+    .lang.icon { min-width: 32px; width: 32px; padding: 0; justify-content: center; }
     .lang:focus-visible { outline: 2px solid var(--lg-sea); outline-offset: 2px; }
   `],
 })
@@ -47,6 +58,22 @@ export class AppHeaderComponent {
 
   current() {
     return LANGUAGES.find((l) => l.code === this.state.lang())?.short ?? '';
+  }
+
+  async pickTheme() {
+    const opts = [
+      { code: 'auto', key: 'themeAuto' },
+      { code: 'light', key: 'themeLight' },
+      { code: 'dark', key: 'themeDark' },
+    ] as const;
+    const sheet = await this.sheets.create({
+      header: this.state.t('theme'),
+      buttons: opts.map((o) => ({
+        text: (o.code === this.state.theme() ? '✓ ' : '') + this.state.t(o.key),
+        handler: () => this.state.setTheme(o.code),
+      })),
+    });
+    await sheet.present();
   }
 
   async pickLang() {

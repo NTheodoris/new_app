@@ -16,6 +16,14 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    // Σκούρο θέμα από την αρχή (χωρίς «άσπρο φλας»): ό,τι διάλεξε ο χρήστης, αλλιώς όπως το κινητό.
+    try {
+      var t = localStorage.getItem('CapacitorStorage.theme');
+      var d = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+      if (d) document.documentElement.classList.add('ion-palette-dark');
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <app-root>

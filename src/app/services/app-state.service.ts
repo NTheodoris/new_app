@@ -18,6 +18,8 @@ const REFRESH_AFTER_MS = 30 * 60 * 1000;
 /** Μετά από τόσα λεπτά στο παρασκήνιο, ο καιρός ξαναφορτώνεται όταν ξαναβλέπουμε την εφαρμογή. */
 const STALE_MIN = 30;
 
+export type Theme = 'auto' | 'light' | 'dark';
+
 export interface BeachView {
   beach: Beach;
   weather: HourWeather | null;
@@ -34,6 +36,12 @@ export class AppState {
   readonly beachSource = signal<BeachSource>('bundled');
 
   readonly lang = signal<Lang>('el');
+  /** Θέμα: «auto» = όπως το κινητό. */
+  readonly theme = signal<Theme>('auto');
+  private readonly systemDark = signal(
+    typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches,
+  );
+  readonly isDark = computed(() => (this.theme() === 'auto' ? this.systemDark() : this.theme() === 'dark'));
   readonly favorites = signal<Set<string>>(new Set());
   readonly position = signal<{ lat: number; lon: number } | null>(null);
 
@@ -121,10 +129,17 @@ export class AppState {
   }
 
   async init() {
-    const [lang, favs] = await Promise.all([
+    const [lang, favs, theme] = await Promise.all([
       Preferences.get({ key: 'lang' }),
       Preferences.get({ key: 'favorites' }),
+      Preferences.get({ key: 'theme' }),
     ]);
+    if (theme.value === 'light' || theme.value === 'dark') this.theme.set(theme.value);
+    window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', (e) => {
+      this.systemDark.set(e.matches);
+      this.applyTheme();
+    });
+    this.applyTheme();
     const saved = lang.value as Lang | null;
     if (saved && ['el', 'en', 'de', 'tr'].includes(saved)) this.lang.set(saved);
     else {
@@ -240,6 +255,19 @@ export class AppState {
 
   hourlyFor(beachId: string): HourWeather[] {
     return this.hourly().get(beachId) ?? [];
+  }
+
+  setTheme(next: Theme) {
+    this.theme.set(next);
+    Preferences.set({ key: 'theme', value: next });
+    this.applyTheme();
+  }
+
+  /** Βάζει/βγάζει την κλάση του σκούρου θέματος και το χρώμα της μπάρας του browser. */
+  private applyTheme() {
+    const dark = this.isDark();
+    document.documentElement.classList.toggle('ion-palette-dark', dark);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0a1820' : '#016aa9');
   }
 
   setLang(next: Lang) {

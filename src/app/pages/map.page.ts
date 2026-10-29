@@ -116,6 +116,7 @@ export class MapPage implements OnDestroy {
 
   private map?: L.Map;
   private attribution?: L.Control.Attribution;
+  private setMapDark?: (dark: boolean) => void;
   private layer = L.layerGroup();
   private meLayer = L.layerGroup();
 
@@ -128,6 +129,10 @@ export class MapPage implements OnDestroy {
         this.updateSheetHeight();
         if (this.selectedId()) this.keepSelectedVisible();
       }, 0);
+    });
+    effect(() => {
+      const dark = this.state.isDark();
+      this.setMapDark?.(dark);
     });
     effect(() => {
       const p = this.state.position();
@@ -166,22 +171,32 @@ export class MapPage implements OnDestroy {
     try {
       const canvas = document.createElement('canvas');
       if (!(canvas.getContext('webgl2') || canvas.getContext('webgl'))) throw new Error('no webgl');
-      // Σκούρο χάρτη όταν το κινητό είναι σε dark mode.
-      const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-      const style = `https://tiles.openfreemap.org/styles/${dark ? 'dark' : 'positron'}`;
-      const gl = maplibreGL({ style } as any).addTo(map);
+      // Σκούρος χάρτης όταν η εφαρμογή είναι σε σκούρο θέμα.
+      const styleUrl = (dark: boolean) => `https://tiles.openfreemap.org/styles/${dark ? 'dark' : 'positron'}`;
+      let dark = this.state.isDark();
+      const gl = maplibreGL({ style: styleUrl(dark) } as any).addTo(map);
       const credit =
         '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> · <a href="https://www.openmaptiles.org/" target="_blank">© OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>';
       this.attribution?.addAttribution(credit);
       const m = gl.getMaplibreMap();
       let loaded = false;
-      m.on('load', () => {
-        loaded = true;
-        // Πιο «θαλασσινό» μπλε για το νερό, στα χρώματα της εφαρμογής.
-        for (const layer of m.getStyle().layers ?? []) {
+      // Πιο «θαλασσινό» μπλε για το νερό, στα χρώματα της εφαρμογής.
+      const tintWater = () => {
+        for (const layer of m.getStyle()?.layers ?? []) {
           if (layer.type === 'fill' && /water/.test(layer.id)) m.setPaintProperty(layer.id, 'fill-color', dark ? '#0f2f40' : '#b7dbe7');
         }
+      };
+      m.on('load', () => {
+        loaded = true;
+        tintWater();
       });
+      // Όταν ο χρήστης αλλάζει θέμα, αλλάζει και ο χάρτης.
+      this.setMapDark = (d: boolean) => {
+        if (d === dark) return;
+        dark = d;
+        m.setStyle(styleUrl(d));
+        m.once('style.load', tintWater);
+      };
       // Αν μέσα σε 20" δεν έχει φορτώσει το στυλ (π.χ. πρόβλημα στον πάροχο), δείχνουμε OSM.
       setTimeout(() => {
         if (!loaded && !m.isStyleLoaded()) {

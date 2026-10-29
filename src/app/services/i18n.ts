@@ -58,6 +58,10 @@ const DICT = {
   km: { el: 'χλμ.', en: 'km' },
   bft: { el: 'μποφόρ', en: 'Bft' },
   privacy: { el: 'Πολιτική απορρήτου', en: 'Privacy policy' },
+  theme: { el: "Εμφάνιση", en: "Appearance" },
+  themeAuto: { el: "Αυτόματα (όπως το κινητό)", en: "Automatic (like your phone)" },
+  themeLight: { el: "Ανοιχτό", en: "Light" },
+  themeDark: { el: "Σκούρο", en: "Dark" },
   why_swell: { el: "Έρχεται κύμα από τα ανοιχτά, ακόμα κι αν εδώ φυσάει λίγο.", en: "Waves are rolling in from the open sea, even though it's not very windy here." },
   sunsetLabel: { el: "Ηλιοβασίλεμα", en: "Sunset" },
   sunsetSea: { el: "πάνω από τη θάλασσα", en: "over the sea" },
@@ -110,6 +114,10 @@ export type DictKey = keyof typeof DICT;
 
 /** Γερμανικά. */
 const DE: Record<DictKey, string> = {
+  theme: "Darstellung",
+  themeAuto: "Automatisch (wie das Handy)",
+  themeLight: "Hell",
+  themeDark: "Dunkel",
   why_swell: "Vom offenen Meer kommen Wellen, auch wenn es hier kaum windet.",
   sunsetLabel: "Sonnenuntergang",
   sunsetSea: "über dem Meer",
@@ -208,6 +216,10 @@ const DE: Record<DictKey, string> = {
 
 /** Τουρκικά. */
 const TR: Record<DictKey, string> = {
+  theme: "Görünüm",
+  themeAuto: "Otomatik (telefondaki gibi)",
+  themeLight: "Açık",
+  themeDark: "Koyu",
   why_swell: "Burada rüzgâr az olsa da açık denizden dalga geliyor.",
   sunsetLabel: "Gün batımı",
   sunsetSea: "denizin üzerinde",
